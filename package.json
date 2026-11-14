@@ -35,5 +35,6 @@
     "typescript": "~7.0.2",
     "vite": "^8.3.6",
     "vitest": "^5.1.0"
-  }
+  },
+  "description": "VIGIL: Earth-independent crew health console for NASA Space Apps 2026 (Team Pandas). Developed with AI assistance (Claude, Anthropic), directed and reviewed by the team. Simulated data; not a medical device."
 }

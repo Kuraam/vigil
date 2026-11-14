@@ -1,4 +1,4 @@
-import { Activity, CalendarCheck, Gauge, PersonStanding, SatelliteDish, Stethoscope, type LucideIcon } from 'lucide-react'
+import { Activity, BookOpen, CalendarCheck, Gauge, PersonStanding, SatelliteDish, Stethoscope, type LucideIcon } from 'lucide-react'
 
 export interface NavItem {
   path: string
@@ -14,4 +14,5 @@ export const NAV: NavItem[] = [
   { path: '/triage', label: 'Triage', icon: Stethoscope },
   { path: '/routine', label: 'Routine', icon: CalendarCheck },
   { path: '/downlink', label: 'Downlink', icon: SatelliteDish },
+  { path: '/sources', label: 'Sources', icon: BookOpen },
 ]
