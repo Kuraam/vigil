@@ -1,6 +1,6 @@
 # VIGIL
 
-**Live demo:** https://vigil-navy-kappa.vercel.app
+**Live demo:** https://vigil-pandas.vercel.app
 **Repository:** https://github.com/Kuraam/vigil
 
 **An Earth-independent crew health console.** VIGIL helps astronauts who are not physicians check their own health and decide what to do when Earth is too far away to ask in time.
