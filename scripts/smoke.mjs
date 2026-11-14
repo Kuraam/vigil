@@ -185,7 +185,7 @@ try {
     await page.locator('#zone-heading', { hasText: /^Eyes$/ }).waitFor({ timeout: 5000 }).catch(() => {})
     check('keyboard selects Eyes zone', (await page.locator('#zone-heading').textContent())?.trim() === 'Eyes')
     check('Eyes zone explains SANS', (await page.getByRole('heading', { name: 'What is SANS?' }).count()) === 1)
-    check('Eyes zone reads Logged (imaging is not rated)', (await page.getByRole('button', { name: /^Eyes/ }).textContent())?.includes('Logged') ?? false)
+    check('Eyes zone is rated by the vision self-check', (await page.getByRole('button', { name: /^Eyes/ }).textContent())?.includes('Nominal') ?? false)
     await page.getByRole('button', { name: /Bones and muscles/ }).click()
     const envText = () => page.getByTestId('zone-environment').textContent()
     await page.locator('#zone-heading', { hasText: 'Bones and muscles' }).waitFor({ timeout: 5000 }).catch(() => {})

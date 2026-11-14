@@ -14,7 +14,7 @@ export const router = createBrowserRouter([
       { path: 'body-map', lazy: async () => ({ Component: (await import('../features/bodymap/BodyMapPage')).BodyMapPage }) },
       // Lazy routes keep Recharts and page code out of the first bundle.
       { path: 'vitals', lazy: async () => ({ Component: (await import('../features/vitals/VitalsPage')).VitalsPage }) },
-      { path: 'triage', element: <EmptyState section={UPCOMING.triage} /> },
+      { path: 'triage', lazy: async () => ({ Component: (await import('../features/triage/TriagePage')).TriagePage }) },
       { path: 'routine', element: <EmptyState section={UPCOMING.routine} /> },
       { path: 'downlink', element: <EmptyState section={UPCOMING.downlink} /> },
       { path: 'sources', lazy: async () => ({ Component: (await import('../features/sources/SourcesPage')).SourcesPage }) },

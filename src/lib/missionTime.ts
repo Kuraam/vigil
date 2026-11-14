@@ -47,3 +47,9 @@ export function makeLoggedImaging(crewId: string, modality: ImagingModality, zon
     finding,
   }
 }
+
+/** "Day 30, 07:45:12" for an ISO mission timestamp. */
+export function missionLabel(iso: string): string {
+  const ms = Date.parse(iso)
+  return `Day ${dayOf(ms)}, ${new Date(ms).toISOString().slice(11, 19)}`
+}

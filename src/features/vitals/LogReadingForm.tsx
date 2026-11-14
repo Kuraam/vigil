@@ -3,7 +3,7 @@ import { makeLoggedReading, missionNowMs } from '../../lib/missionTime'
 import { latestMissionDay } from '../../lib/readings'
 import { useVigilStore } from '../../lib/store'
 import { ENTRY_LIMITS, validateEntry } from '../../lib/validation'
-import type { RatedVitalType } from '../../types'
+import type { RatedVitalType, VitalReading } from '../../types'
 
 interface Field {
   name: string
@@ -23,8 +23,22 @@ function fieldsFor(vital: RatedVitalType, unit: string): Field[] {
 }
 
 /** Keyboard-first form to log one reading. Saves to the store, so every page updates at once. */
-export function LogReadingForm({ vital, label, unit }: { vital: RatedVitalType; label: string; unit: string }) {
-  const crewId = useVigilStore((s) => s.crewId)
+export function LogReadingForm({
+  vital,
+  label,
+  unit,
+  crewId: crewIdProp,
+  onSaved,
+}: {
+  vital: RatedVitalType
+  label: string
+  unit: string
+  /** Log for this crew member instead of the selected one (protocol runner). */
+  crewId?: string
+  onSaved?: (reading: VitalReading, text: string) => void
+}) {
+  const selectedCrew = useVigilStore((s) => s.crewId)
+  const crewId = crewIdProp ?? selectedCrew
   const readings = useVigilStore((s) => s.readings)
   const addReading = useVigilStore((s) => s.addReading)
   const fields = fieldsFor(vital, unit)
@@ -50,6 +64,7 @@ export function LogReadingForm({ vital, label, unit }: { vital: RatedVitalType; 
     setValues({})
     const shown = vital === 'bloodPressure' ? `${result.values.systolic}/${result.values.diastolic}` : String(result.values.value)
     setSaved(`Saved: ${label} ${shown} ${unit} on mission day ${reading.missionDay}.`)
+    onSaved?.(reading, `${label} ${shown} ${unit}`)
   }
 
   return (
