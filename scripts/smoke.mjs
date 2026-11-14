@@ -107,12 +107,28 @@ try {
     await page.goto(base + '/overview', { waitUntil: 'networkidle' })
     await page.getByLabel('Crew member').selectOption('crew-03')
     check('crew select updates Overview', (await page.locator('h1').textContent())?.trim() === 'Mei Tanaka-Ross')
+    // Environment drives comm delay and the radiation rate / days remaining.
+    const rate = () => page.getByTestId('dose-rate').textContent()
+    const days = () => page.getByTestId('dose-days').textContent()
+    const transit = { rate: await rate(), days: await days() }
+    await page.getByLabel('Environment').selectOption('surface-base')
+    const surface = { rate: await rate(), days: await days() }
+    check('environment changes radiation rate', transit.rate?.includes('1.84') && surface.rate?.includes('0.64'), `${transit.rate} -> ${surface.rate}`)
+    check('environment changes days remaining', transit.days !== surface.days, `${transit.days} -> ${surface.days}`)
     await page.getByLabel('Environment').selectOption('orbital-station')
-    check('environment select updates comm delay', (await page.getByRole('banner').textContent())?.includes('0.24 s') ?? false)
+    check('environment select updates comm delay', (await page.getByRole('banner').textContent())?.includes('Under 1 s') ?? false)
     await page.reload({ waitUntil: 'networkidle' })
     check('selection persists across reload', (await page.locator('h1').textContent())?.trim() === 'Mei Tanaka-Ross')
-    // Keyboard: the first focusable element reached by Tab should be the skip link.
-    // (Headless Chrome can spend the first Tab focusing the document itself.)
+    check('interaction console clean', errors.length === 0, errors.join(' | '))
+    await page.evaluate(() => localStorage.clear())
+    await page.close()
+  }
+
+  // Keyboard: on a fresh page the first focusable element reached by Tab is the skip link.
+  // (Headless Chrome can spend the first Tab focusing the document itself.)
+  {
+    const { page } = await openPage()
+    await page.goto(base + '/overview', { waitUntil: 'networkidle' })
     let focused = 'BODY'
     for (let i = 0; i < 3 && focused === 'BODY'; i++) {
       await page.keyboard.press('Tab')
@@ -121,8 +137,6 @@ try {
       )
     }
     check('first focusable element is the skip link', focused === 'Skip to content', `got "${focused.slice(0, 40)}"`)
-    check('interaction console clean', errors.length === 0, errors.join(' | '))
-    await page.evaluate(() => localStorage.clear())
     await page.close()
   }
 
