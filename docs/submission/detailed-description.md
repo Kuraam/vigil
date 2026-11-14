@@ -39,7 +39,7 @@ TypeScript, React, Vite, Tailwind CSS, Motion, Zustand, React Router, Recharts, 
 **Pandanauts**
 
 - Ahmad Kura Muhammad, Team Lead
-- Muhammad Danjuma, [AI Engineer]
+- Muhammad Danjuma, AI Engineer
 <!-- team:end -->
 
 Live app: https://vigil-pandas.vercel.app | Repository: https://github.com/Kuraam/vigil
