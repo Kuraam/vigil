@@ -1,113 +1,125 @@
 # VIGIL
 
-**Live demo:** https://vigil-pandas.vercel.app
+**Live app:** https://vigil-pandas.vercel.app
 **Repository:** https://github.com/Kuraam/vigil
-
-**An Earth-independent crew health console.** VIGIL helps astronauts who are not physicians check their own health and decide what to do when Earth is too far away to ask in time.
-
-Built for the 2026 NASA Space Apps Challenge, *Create Health Monitoring Software for Astronauts on Space Missions*.
+**Demo deck (PDF, 7 slides):** https://vigil-pandas.vercel.app/VIGIL-demo-deck.pdf
 
 > **Simulated data. Concept demonstration, not a medical device.**
-> Every crew member and reading in this build is fictional and generated from a fixed seed. Status thresholds are cited; tiers marked "VIGIL triage rule" are team-defined and not clinically validated.
 
-## What works today (Phases 1 to 3)
+## What VIGIL is
 
-- **Mission shell.** Mission day, a ticking mission elapsed time (MET), crew and environment selectors, and the one-way signal delay to Earth on a 0 to 22.3 minute scale.
-- **Overview.** Status summary and the latest reading of all nine vitals, rated nominal, watch or action against cited thresholds (most urgent first), a radiation dose panel, and the five NASA HRP hazards.
-- **Radiation.** Career dose against the 600 mSv limit (NASA-STD-3001), today's dose rate for the selected environment, and days left at that rate. Switching environment changes the rate and days left.
-- **Vitals.** A 30-day trend chart per vital with the nominal band shaded, threshold lines, the personal baseline where the rules use it, the source of every threshold, a data table, and a keyboard form to log a new reading. The imaging log lists scans; they are logged, never rated.
-- **Body Map.** An original SVG figure with eight body systems. Each system takes the worst status of its linked readings and links to the named NASA HRP risks, the hazards that affect it, and how the selected environment changes things.
-- **Triage.** An alert queue (selected crew member or whole crew), Action first. Each alert opens a guided protocol (confirm, assess, act, escalate) with a timestamp per step, saved and resumable. Re-measuring inside a protocol updates status at once. VIGIL never names medications; protocols are labelled "Concept guidance for demonstration. Not medical advice."
-- **Comm-delay escalation.** Earth reply ETA is the round trip. Orbital Station is ground-guided; every Mars environment is crew-autonomous first. A badge in the top bar shows the mode.
-- **Environment priorities.** The Overview ranks the five hazards for the selected environment (team-defined), and the Routine follows the top-ranked hazard.
-- **Routine.** A daily checklist with points, personal and crew streaks, a 7-day adherence bar and milestones. Exercise adherence feeds the Bones and muscles zone. A "due now" count in the top bar opens it.
-- **Downlink.** A compact plain-text brief for one crew member or the whole crew, with protocol steps and timestamps, 7-day trends, dose and adherence. Copy, print or save as PDF, size in KB and arrival time.
-- **Sources.** Every source, grouped, with where it is used, plus the About statement and the AI-use disclosure.
-- **Demo storylines.** The flight engineer's sleep debt turns sleep from watch (day 22) to action (day 27), with missed sleep and check-in tasks. The mission specialist runs 38.3 °C and 108 bpm on days 29-30 and skips exercise on day 29.
-- **Demo path.** Select Arjun Sethi, open Triage, start the fever protocol, enter a re-measured temperature, then build the Downlink brief.
-- **Offline.** No backend, no auth, no network calls. Fonts and icons are bundled.
-- **State persists** (crew, environment, readings, logged entries) in `localStorage`.
-- **Accessibility.** Full keyboard navigation with a skip link and visible focus ring. Hit targets are at least 44 px. Reduced motion is respected. Status is always shown with an icon, a label and a colour; charts have a text summary and a data table.
+VIGIL is a crew health console for long missions. It helps astronauts who are not physicians answer three questions about themselves and their crewmates, without waiting for Earth:
 
-## Run it
+1. **What is my status?** Every reading is rated nominal, watch or action against a threshold with a cited source.
+2. **Why does it matter here?** Readings are linked to body systems, to NASA's named spaceflight risks and to the environment the crew is in.
+3. **What do I do now?** A guided protocol walks the crew through confirming, assessing, acting and escalating.
 
-Requires Node 20.19+ (developed on Node 24).
+Built by Pandanauts for the NASA Space Apps Challenge 2026, challenge *Create Health Monitoring Software for Astronauts on Space Missions*.
+
+## The problem
+
+NASA's Human Research Program groups the dangers of human spaceflight into five hazards: space radiation, isolation and confinement, distance from Earth, gravity fields, and hostile or closed environments. They can feed off one another and worsen effects on the body.
+
+On the way to Mars, a signal takes up to about 22 minutes to reach Earth, and as long again for the answer. A crew cannot wait 45 minutes to learn whether a fever matters. NASA HRP names this gap the **Risk of Inadequate Systems Operations Support**. VIGIL is built for that situation: Earth-independent care, where the crew assesses itself first and Earth advises when it can.
+
+## Features
+
+- **Overview.** Status summary and latest readings for each crew member, most urgent first; hazard priority for the current environment; radiation dose against the career limit; the five hazards.
+- **Vitals.** A 30-day chart per vital with the nominal band, threshold lines and personal baseline; the source of every threshold; a data table; keyboard log forms; an imaging log.
+- **Body Map.** Eight body systems, each rated by its linked readings and linked to named NASA HRP risks, the hazards that affect it, and how the environment changes things.
+- **Triage.** An alert queue for one crew member or the whole crew, and ten guided protocols. Each step is timestamped and saved, so a protocol can be resumed.
+- **Routine.** A daily countermeasure checklist with points, personal and crew streaks, a 7-day adherence bar and milestones.
+- **Downlink.** A compact plain-text brief for the next communication window, with copy, print or save as PDF, its size and the time it takes to reach Earth.
+- **Sources.** Every source with where it is used, an About section and the AI-use statement.
+- **First visit.** A "Start here" panel and a 60-second guided tour. "Reset demo data" on the Sources page restores the seeded state.
+
+It runs fully offline in the browser. There is no backend, account or network call.
+
+## How it works
+
+**Thresholds with sources.** Each threshold value is stored with its unit and the source it comes from (`src/data/thresholds.ts`), and a test fails if any value cites a source that is not in the registry (`src/data/sources.ts`). Where published figures leave a gap, the tier is a team rule and is labelled "VIGIL triage rule (team-defined, not clinically validated)". Some rules use history: heart rate variability against a day 1-14 baseline, three short nights of sleep in a row, a three-day fall in mood.
+
+**Triage and protocols.** Any watch or action reading becomes an alert. Each protocol has four parts: confirm (re-measure correctly), assess (a symptom checklist with red flags), act (low-risk self-care and operational steps) and escalate. VIGIL never names medications or doses; where treatment may be needed it says: "Use the onboard medical kit only as directed by the crew medical officer or flight surgeon." Any red flag escalates at once.
+
+**Comm-delay escalation.** Earth's reply time is the round trip, twice the one-way delay. In low Earth orbit the rule is ground-guided: consult the flight surgeon now. Everywhere on the Mars mission profile it is crew-autonomous first: complete the first three steps, downlink the brief, then follow ground direction when it arrives.
+
+**Radiation model.** Career dose is a simulated prior dose plus mission dose at published daily rates: 1.84 mSv/day in cruise and 0.64 mSv/day on the Mars surface (Curiosity RAD), about 0.35 mSv/day in low Earth orbit. It is compared with the 600 mSv career limit in NASA-STD-3001, and VIGIL shows the days left at today's rate.
+
+## NASA and partner data used
+
+- NASA HRP, 5 Hazards of Human Spaceflight: hazard panel, Body Map hazard lines, hazard priorities.
+- NASA HRP, Risks of Human Spaceflight: risk names on all eight Body Map zones and in the protocols.
+- NASA HRP, Ongoing HRP Research: research cards on the Routine page and Body Map, labelled "NASA research in progress" where applicable.
+- NASA-STD-3001 Vol 1 [V1 4030] and [V1 4031]: career and solar particle event radiation limits.
+- NASA MSL/Curiosity RAD (Zeitlin et al., 2013; Hassler et al., 2014): cruise and Mars-surface dose rates.
+- NASA ISS crew dosimetry: Orbital Station dose rate.
+- NASA Mars Relay Network: one-way signal delay.
+- Canadian Space Agency, Monitoring Radiation for Astronaut Health (2026): neutron note in the radiation panel.
+- Canadian Space Agency, Why Do We Conduct Science Experiments in Space?: listed on the Sources page.
+
+NASA does not endorse any non-U.S. Government entity. Non-NASA sources are used under their own terms of use. The full list with links is on the app's Sources page and in [docs/submission/nasa-data.md](docs/submission/nasa-data.md).
+
+## Other references
+
+American Heart Association (blood pressure categories, low blood pressure, resting heart rate, how to measure blood pressure); American Diabetes Association (Standards of Care, 15-15 rule); CDC fever definition; the clinical definition of hypothermia; WHO Pulse Oximetry Training Manual (2011); AASM/SRS 2015 sleep consensus; Barger et al., 2014; Stahn et al., 2017; Basner et al., 2015.
+
+## Use of AI tools
+
+VIGIL was built by Pandanauts for NASA Space Apps 2026. Code was written with the assistance of Claude (Anthropic), an AI coding assistant, directed and reviewed by the team. No images were generated by AI: every picture is a screenshot of the app. All crew data is simulated. VIGIL is not a medical device. Details: [docs/submission/ai-use.md](docs/submission/ai-use.md).
+
+## Limitations
+
+- All crew and readings are simulated from a fixed seed. Nothing comes from a real person or sensor.
+- Several tiers, the escalation rule, the hazard ranking and the routine scoring are team-defined rules, labelled as such.
+- Nothing in VIGIL has been clinically validated. It is a concept demonstration, not a medical device.
+- Data is stored only in the browser that uses it.
+
+## Future work
+
+- Real input from wearables and medical devices.
+- An installable offline tablet build for use on board.
+- Validation of thresholds, rules and protocols with flight surgeons.
+- More environments, such as Moon and Mars bases.
+
+## Team
+
+<!-- team:start -->
+**Pandanauts**
+
+- Ahmad Kura Muhammad, Team Lead
+- Muhammad Danjuma, [AI Engineer]
+<!-- team:end -->
+
+## How to run
+
+Requires Node 20.19 or later.
 
 ```bash
 npm install
 npm run dev          # http://localhost:5173
 ```
 
-| Command             | What it does                                                                 |
-| ------------------- | ---------------------------------------------------------------------------- |
-| `npm run dev`       | Dev server with hot reload                                                   |
-| `npm run build`     | Type check, then production build into `dist/`                               |
-| `npm run preview`   | Serve the production build locally                                           |
-| `npm run typecheck` | TypeScript project check (`tsc -b`)                                          |
-| `npm run lint`      | Lint with oxlint                                                             |
-| `npm test`          | Unit tests for the domain layer (Vitest)                                     |
-| `npm run smoke`     | Opens every route in local Chrome or Edge and fails on any console error. Screenshots go to `.tmp/screens/` |
+| Command | What it does |
+| --- | --- |
+| `npm run dev` | Development server |
+| `npm run build` | Type check and production build into `dist/` |
+| `npm run preview` | Serve the production build |
+| `npm run typecheck` / `npm run lint` | TypeScript check / oxlint |
+| `npm test` | Unit tests (Vitest) |
+| `npm run smoke` | Browser check of every route, the tour, reset and the end-to-end fever path. Set `SMOKE_URL` to test a running build |
+| `npm run screenshots` | Regenerate `docs/screenshots/` (1920x1080) |
+| `npm run deck` | Render `docs/deck/index.html` to the 7-page PDF in `docs/` and `public/` |
+| `npm run sync:team` | Copy the team from `src/data/team.json` into the README, submission files and deck |
 
-`npm run smoke` uses an installed Chrome or Edge. Set `CHROME_PATH` if yours is somewhere unusual. By default it starts its own dev server. To check a running build instead, set `SMOKE_URL`:
+The smoke, screenshot and deck scripts use an installed Chrome or Edge; set `CHROME_PATH` if needed. On Windows, run tests with `npm test` rather than `npx vitest`: the wrapper fixes a Vitest bug with lower-case drive letters.
 
-```bash
-npm run build && npm run preview                       # terminal 1
-SMOKE_URL=http://localhost:4173 npm run smoke          # terminal 2 (bash)
-$env:SMOKE_URL="http://localhost:4173"; npm run smoke  # terminal 2 (PowerShell)
-```
+Project layout: `src/types` (domain model), `src/data` (sources, thresholds, protocols, simulation), `src/lib` (pure logic, all unit-tested), `src/features/<page>` (screens), `src/app` (shell and router), `src/styles/tokens.css` (all colours and fonts).
 
-**Hosting note:** routes use the History API, so a static host must serve `index.html` for every path. `vite preview` already does this, and `vercel.json` sets the same rewrite on Vercel.
+## Screenshots
 
-## Folder structure
-
-```
-src/
-  app/                 App root, router, navigation config
-    shell/             Top bar, mission clock, comm delay, side nav, layout
-  features/
-    overview/          Overview: status summary, readouts, radiation, hazards
-    vitals/            Vitals: Recharts trends, log forms, imaging log
-    bodymap/           Body Map: SVG figure, zone list, zone panel
-    triage/            Alert queue and protocol runner
-    routine/           Daily checklist, streaks, adherence
-    downlink/          Plain-text brief builder
-    sources/           Sources and About page
-  components/          Shared UI: StatusChip, PageHeader, SimulatedTag
-  data/                Sources registry, thresholds, radiation, hazards, body
-                       zones, research, environments, seeded generator
-  lib/                 Pure logic: PRNG, status evaluation, formatting,
-                       reading helpers, persistence, Zustand store
-  types/               Domain model (CrewMember, VitalReading, Hazard, ...)
-  styles/tokens.css    Design tokens: the only place colours and fonts are defined
-scripts/
-  smoke.mjs            Browser route check
-  vitest.mjs           Test launcher (Windows drive-letter fix, see below)
-docs/superpowers/plans Implementation plan for each phase
-```
-
-The domain layer (`types`, `data`, `lib`) has no React imports and is unit tested. The UI reads only from the store and these helpers.
-
-## Key decisions
-
-- **Every number has a source.** `src/data/sources.ts` is the single registry; thresholds, dose rates, delays and notes all point at it, a unit test fails if any threshold cites an unregistered source, and the Sources page renders it.
-- **Thresholds are data, rules are code.** `src/data/thresholds.ts` holds each value as `{ value, unit, source }`, exactly as supplied by the team. `src/lib/status.ts` applies them, including the history rules (HRV against a day 1-14 baseline, three short nights for sleep, a three-day mood decline). Values that fall between two given tiers go to the watch tier.
-- **Simulated data is deterministic.** `src/data/simulate.ts` generates 4 crew × 30 days from seed `20261004`. Generator ranges only shape believable demo data. Storyline values are fixed overrides. Saved Phase 1 data is regenerated automatically (data version 2).
-- **Comm delay is physics, not medicine.** Mars mission profile: transit up to 22.3 min, Mars surface 3.0 to 22.3 min (NASA Mars Relay Network), Orbital Station under 1 s.
-- **Status palette is reserved.** Green, amber, red and grey appear only for status, always with a distinct icon shape and a text label. The cyan accent appears only on interactive elements.
-
-## Roadmap
-
-| Phase | Scope |
-| ----- | ----- |
-| **1. Foundation and mission shell** (done) | Scaffold, domain model, TODO thresholds, simulated dataset, store, shell, Overview, empty states |
-| **2. Sourced thresholds and trends** (done) | Cited thresholds, radiation dose tracking, Vitals trends with logging, Body Map with NASA HRP risks, Sources page, demo storylines |
-| **3. Act on it** (this build) | Alert queue and guided protocols with comm-delay escalation, environment hazard priorities, Routine with streaks, Downlink brief |
-| **4. Downlink and demo** | Compact health summary for the next comm window; delay-aware send queue; final polish and demo script |
-
-## Use of AI tools
-
-VIGIL was built by Pandanauts for NASA Space Apps 2026. Code was written with the assistance of Claude (Anthropic), an AI coding assistant, directed and reviewed by the team. All crew data is simulated. VIGIL is not a medical device.
-
-## Known quirk: Windows drive letter
-
-If a terminal opens the project as `d:\...` instead of `D:\...`, plain `npx vitest` fails every suite with *"Cannot read properties of undefined (reading 'config')"*. Vitest loads its runner twice under two spellings of the same path. `npm test` goes through `scripts/vitest.mjs`, which normalises the drive letter, so use that.
+| | |
+| --- | --- |
+| ![Overview, Spacecraft Transit](docs/screenshots/overview-transit.png) | ![Overview after switching to Surface Base](docs/screenshots/environment-surface.png) |
+| ![Body Map, immune system and blood](docs/screenshots/body-map-arjun.png) | ![Triage, fever alert](docs/screenshots/triage-fever.png) |
+| ![Fever protocol in progress](docs/screenshots/protocol-running.png) | ![Routine](docs/screenshots/routine.png) |
+| ![Downlink brief](docs/screenshots/downlink-brief.png) | ![Vitals, sleep chart](docs/screenshots/vitals-sleep.png) |
