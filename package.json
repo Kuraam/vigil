@@ -12,7 +12,8 @@
     "test": "node scripts/vitest.mjs run",
     "smoke": "node scripts/smoke.mjs",
     "sync:team": "node scripts/sync-team.mjs",
-    "screenshots": "node scripts/screenshots.mjs"
+    "screenshots": "node scripts/screenshots.mjs",
+    "deck": "node scripts/build-deck.mjs"
   },
   "dependencies": {
     "@fontsource/ibm-plex-mono": "^5.3.0",
