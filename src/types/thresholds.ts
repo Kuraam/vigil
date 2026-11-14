@@ -71,6 +71,24 @@ export interface CognitiveThresholds {
   note: string
 }
 
+export interface Spo2Thresholds {
+  nominalAtLeast: ThresholdValue
+  watchAtLeast: ThresholdValue
+}
+
+export interface VisionThresholds {
+  /** A "yes, my vision changed" answer is rated watch. */
+  changeIsWatch: ThresholdValue
+  note: string
+}
+
+export interface ExerciseThresholds {
+  windowDays: ThresholdValue
+  nominalAtLeast: ThresholdValue
+  watchAtLeast: ThresholdValue
+  note: string
+}
+
 export interface ThresholdConfig {
   bloodPressure: BloodPressureThresholds
   heartRate: HeartRateThresholds
@@ -80,4 +98,7 @@ export interface ThresholdConfig {
   sleepHours: SleepThresholds
   mood: MoodThresholds
   cognitiveReadiness: CognitiveThresholds
+  spo2: Spo2Thresholds
+  visionCheck: VisionThresholds
+  exerciseAdherence: ExerciseThresholds
 }

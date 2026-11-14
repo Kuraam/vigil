@@ -30,12 +30,14 @@ export function ZonePanel({
   status,
   byVital,
   dose,
+  exercise,
   environmentId,
 }: {
   zone: ZoneInfo
   status: StatusResult
   byVital: Record<VitalType, VitalRow>
   dose: DoseSummary
+  exercise: { sessions: number; result: StatusResult }
   environmentId: EnvironmentId
 }) {
   const env = getEnvironment(environmentId)
@@ -62,6 +64,16 @@ export function ZonePanel({
         ) : (
           <ul className="space-y-2">
             {zone.indicators.map((ind) => {
+              if (ind === 'exerciseAdherence')
+                return (
+                  <li key={ind} className="flex items-center justify-between gap-3">
+                    <span className="text-fg">Exercise adherence</span>
+                    <span className="flex items-center gap-3">
+                      <span className="readout text-fg">{exercise.sessions} of 7 days</span>
+                      <StatusChip result={exercise.result} title={exercise.result.detail} />
+                    </span>
+                  </li>
+                )
               if (ind === 'radiation')
                 return (
                   <li key={ind} className="flex items-center justify-between gap-3">

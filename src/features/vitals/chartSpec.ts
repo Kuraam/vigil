@@ -121,6 +121,16 @@ export function chartSpec(vital: RatedVitalType, history: VitalReading[]): Chart
         rules: [{ y: t.mood.actionAtMost.value, label: `Action at ${t.mood.actionAtMost.value} or lower`, tone: 'action' }],
         decimals: 0,
       }
+    case 'spo2':
+      return {
+        domain: [85, 100],
+        bands: [{ from: t.spo2.nominalAtLeast.value, to: 100, label: 'Nominal' }],
+        rules: [{ y: t.spo2.watchAtLeast.value, label: `Action below ${t.spo2.watchAtLeast.value}%`, tone: 'action' }],
+        decimals: 0,
+      }
+    case 'visionCheck':
+      // Yes/no answers are shown as a day strip, not a chart.
+      return { domain: [0, 1], bands: [], rules: [], decimals: 0 }
     case 'cognitiveReadiness':
       return {
         domain: [0, 100],

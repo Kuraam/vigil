@@ -16,7 +16,7 @@ const v = (value: number, unit: string, source: { label: string }): ThresholdVal
   source: source.label,
 })
 
-const { aha2017, ahaLowBp, ahaHeartRate, ada, cdcFever, hypothermia, aasm2015, team } = SOURCES
+const { aha2017, ahaLowBp, ahaHeartRate, ada, cdcFever, hypothermia, aasm2015, team, who2011 } = SOURCES
 
 export const THRESHOLDS: ThresholdConfig = {
   // Rated on the worse of systolic and diastolic.
@@ -74,6 +74,20 @@ export const THRESHOLDS: ThresholdConfig = {
     watchAtLeast: v(60, 'score 0-100', team),
     note: 'Modelled on NASA’s Cognition test battery (Basner et al., 2015).',
   },
+  spo2: {
+    nominalAtLeast: v(95, '%', who2011),
+    watchAtLeast: v(90, '%', who2011),
+  },
+  visionCheck: {
+    changeIsWatch: v(1, 'yes answer', team),
+    note: 'Linked to the NASA HRP risk Spaceflight Associated Neuro-ocular Syndrome (SANS). If you notice a change, log an ocular ultrasound.',
+  },
+  exerciseAdherence: {
+    windowDays: v(7, 'days', team),
+    nominalAtLeast: v(6, 'sessions', team),
+    watchAtLeast: v(4, 'sessions', team),
+    note: 'Linked to the NASA HRP risks Spaceflight-Induced Bone Changes and Reduced Cardiorespiratory and Musculoskeletal Fitness.',
+  },
 }
 
 /** Context notes shown on a vital's card, next to its rating. */
@@ -83,4 +97,5 @@ export const VITAL_NOTES: Partial<Record<VitalType, string>> = {
   coreTemperature: THRESHOLDS.coreTemperature.note,
   sleepHours: THRESHOLDS.sleepHours.note,
   cognitiveReadiness: THRESHOLDS.cognitiveReadiness.note,
+  visionCheck: THRESHOLDS.visionCheck.note,
 }

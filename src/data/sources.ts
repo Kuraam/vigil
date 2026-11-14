@@ -105,6 +105,21 @@ export const SOURCES = s({
   },
 
   // Clinical guidelines and research
+  who2011: {
+    label: 'WHO Pulse Oximetry Training Manual (2011)',
+    group: 'clinical',
+    usedBy: ['SpO2: all tiers', 'Triage: low SpO2 protocol, how to measure'],
+  },
+  ahaMeasureBp: {
+    label: 'American Heart Association, how to measure blood pressure',
+    group: 'clinical',
+    usedBy: ['Triage: high blood pressure protocol, how to measure'],
+  },
+  ada1515: {
+    label: 'American Diabetes Association, 15-15 rule',
+    group: 'clinical',
+    usedBy: ['Triage: low blood sugar protocol, act step'],
+  },
   aha2017: {
     label: 'AHA/ACC 2017 blood pressure categories',
     group: 'clinical',
@@ -163,6 +178,11 @@ export const SOURCES = s({
       'Mood: all tiers',
       'Cognitive readiness: all tiers',
       'Radiation: status as a share of the career limit',
+      'Vision self-check: a reported change is watch',
+      'Exercise adherence: all tiers',
+      'Triage: comm-delay escalation rule',
+      'Overview: hazard priority in each environment',
+      'Routine: points, streaks and milestones',
     ],
   },
   lightTime: {

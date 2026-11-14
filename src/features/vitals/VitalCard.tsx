@@ -9,6 +9,7 @@ import type { RatedVitalType } from '../../types'
 import { chartSpec } from './chartSpec'
 import { LogReadingForm } from './LogReadingForm'
 import { TrendChart } from './TrendChart'
+import { VisionCheckForm, VisionStrip } from './VisionCheck'
 
 /** Legend swatch: identity by line style + label, never colour alone. */
 function Key({ dash, muted, label }: { dash?: string; muted?: boolean; label: string }) {
@@ -72,7 +73,11 @@ export function VitalCard({ row }: { row: VitalRow }) {
         </div>
       )}
 
-      <TrendChart vital={vital} history={history} spec={spec} unit={meta.unit} label={meta.label} />
+      {vital === 'visionCheck' ? (
+        <VisionStrip history={history} />
+      ) : (
+        <TrendChart vital={vital} history={history} spec={spec} unit={meta.unit} label={meta.label} />
+      )}
 
       {note && <p className="rounded-md border border-line bg-raised px-3 py-2 text-sm text-fg-muted">{note}</p>}
 
@@ -103,8 +108,8 @@ export function VitalCard({ row }: { row: VitalRow }) {
         </Disclosure>
       </div>
 
-      <Disclosure label={`Log ${meta.label.toLowerCase()} reading`} icon={false}>
-        <LogReadingForm vital={vital} label={meta.label} unit={meta.unit} />
+      <Disclosure label={vital === 'visionCheck' ? 'Answer today’s vision check' : `Log ${meta.label.toLowerCase()} reading`} icon={false}>
+        {vital === 'visionCheck' ? <VisionCheckForm /> : <LogReadingForm vital={vital} label={meta.label} unit={meta.unit} />}
       </Disclosure>
     </article>
   )

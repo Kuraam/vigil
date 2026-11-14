@@ -7,12 +7,15 @@ import {
   hrvSummary,
   rateBloodPressure,
   rateCognitive,
+  rateExercise,
   rateGlucose,
   rateHeartRate,
   rateHrv,
   rateMood,
   rateSleep,
+  rateSpo2,
   rateTemperature,
+  rateVision,
 } from './status'
 
 const day = (vital: ScalarVitalType, d: number, value: number): ScalarReading => ({
@@ -206,5 +209,44 @@ describe('evaluateVital', () => {
   it('rates the latest reading by timestamp', () => {
     const later = { ...day('heartRate', 1, 130), timestamp: new Date(Date.UTC(2031, 2, 1, 9)).toISOString() }
     expect(evaluateVital('heartRate', [later, day('heartRate', 1, 70)]).status).toBe('action')
+  })
+})
+
+describe('SpO2', () => {
+  it.each<[number, Status]>([
+    [100, 'nominal'],
+    [95, 'nominal'],
+    [94, 'watch'],
+    [94.5, 'watch'],
+    [90, 'watch'],
+    [89, 'action'],
+  ])('%s%% is %s', (v, status) => expect(rateSpo2(v).status).toBe(status))
+  it('cites the WHO manual', () => {
+    expect(THRESHOLDS.spo2.nominalAtLeast.source).toBe('WHO Pulse Oximetry Training Manual (2011)')
+    expect(rateSpo2(85).detail).toContain('emergency')
+  })
+})
+
+describe('vision self-check', () => {
+  it('yes is watch and suggests an ocular ultrasound; no is nominal', () => {
+    expect(rateVision(1)).toMatchObject({ status: 'watch' })
+    expect(rateVision(1).detail).toContain('ocular ultrasound')
+    expect(rateVision(0).status).toBe('nominal')
+    expect(THRESHOLDS.visionCheck.changeIsWatch.source).toBe(SOURCES.team.label)
+  })
+})
+
+describe('exercise adherence', () => {
+  it.each<[number, Status]>([
+    [7, 'nominal'],
+    [6, 'nominal'],
+    [5, 'watch'],
+    [4, 'watch'],
+    [3, 'action'],
+    [0, 'action'],
+  ])('%i sessions in 7 days is %s', (n, status) => expect(rateExercise(n).status).toBe(status))
+  it('cites the two NASA HRP risks in its note', () => {
+    expect(THRESHOLDS.exerciseAdherence.note).toContain('Spaceflight-Induced Bone Changes')
+    expect(THRESHOLDS.exerciseAdherence.note).toContain('Reduced Cardiorespiratory and Musculoskeletal Fitness')
   })
 })

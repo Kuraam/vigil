@@ -1,57 +1,32 @@
 import { useMemo } from 'react'
-import { getCrew } from '../data/crew'
-import { generatePriorDoses } from '../data/simulate'
-import { VITALS } from '../data/vitals'
-import type { Status, StatusResult, VitalMeta, VitalReading, VitalType } from '../types'
-import { doseSummary, type DoseSummary } from './radiation'
-import { historyFor, latestMissionDay, latestReading, trailingMean, trendValue } from './readings'
-import { evaluateVital } from './status'
+import { CREW } from '../data/crew'
+import { computeCrewHealth, type CrewHealth } from './health'
+import { latestMissionDay } from './readings'
+import { makeRoutineContext } from './routine'
 import { useVigilStore } from './store'
 
-export interface VitalRow {
-  meta: VitalMeta
-  /** Every reading of this vital for the crew member, oldest first. */
-  history: VitalReading[]
-  latest: VitalReading | undefined
-  result: StatusResult
-  /** Latest minus the mean of the 7 prior days; null when not applicable. */
-  delta: number | null
-}
+export type { VitalRow } from './health'
 
-const PRIOR_DOSES = generatePriorDoses()
+const CREW_IDS = CREW.map((c) => c.id)
 
-/**
- * Everything the pages need about the selected crew member, derived from the
- * store in one place so Overview, Vitals and Body Map always agree.
- */
-export function useCrewHealth() {
+/** Health for every crew member plus the shared mission context, derived once from the store. */
+export function useMissionHealth() {
   const crewId = useVigilStore((s) => s.crewId)
   const environmentId = useVigilStore((s) => s.environmentId)
   const readings = useVigilStore((s) => s.readings)
+  const routineLog = useVigilStore((s) => s.routine)
 
   return useMemo(() => {
-    const crew = getCrew(crewId)
-    const rows: VitalRow[] = VITALS.map((meta) => {
-      const history = historyFor(readings, crewId, meta.type)
-      const latest = latestReading(history)
-      const mean = latest ? trailingMean(readings, latest) : null
-      const value = latest ? trendValue(latest) : null
-      return {
-        meta,
-        history,
-        latest,
-        result: evaluateVital(meta.type, history),
-        delta: mean !== null && value !== null ? value - mean : null,
-      }
-    })
-    const byVital = Object.fromEntries(rows.map((r) => [r.meta.type, r])) as Record<VitalType, VitalRow>
-
-    const counts: Record<Status, number> = { nominal: 0, watch: 0, action: 0, nodata: 0 }
-    for (const r of rows) counts[r.result.status]++
-
     const missionDay = latestMissionDay(readings)
-    const dose: DoseSummary = doseSummary(PRIOR_DOSES[crewId] ?? 0, missionDay, environmentId)
+    const routine = makeRoutineContext(readings, routineLog, CREW_IDS)
+    const all: Record<string, CrewHealth> = {}
+    for (const id of CREW_IDS) all[id] = computeCrewHealth(readings, id, environmentId, missionDay, routine)
+    return { crewId, environmentId, missionDay, routine, all, selected: all[crewId] ?? all[CREW_IDS[0]] }
+  }, [crewId, environmentId, readings, routineLog])
+}
 
-    return { crew, crewId, environmentId, rows, byVital, counts, missionDay, dose }
-  }, [crewId, environmentId, readings])
+/** The selected crew member's health. Overview, Vitals and Body Map all read this, so they always agree. */
+export function useCrewHealth() {
+  const { selected, environmentId, missionDay } = useMissionHealth()
+  return { ...selected, environmentId, missionDay }
 }

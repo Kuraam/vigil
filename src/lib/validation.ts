@@ -15,6 +15,8 @@ export const ENTRY_LIMITS: Record<Exclude<RatedVitalType, 'bloodPressure'> | 'sy
   sleepHours: { min: 0, max: 24 },
   mood: { min: 1, max: 5, integer: true },
   cognitiveReadiness: { min: 0, max: 100, integer: true },
+  spo2: { min: 50, max: 100, integer: true },
+  visionCheck: { min: 0, max: 1, integer: true },
 }
 
 export type EntryResult =

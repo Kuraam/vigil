@@ -84,6 +84,26 @@ export function rateCognitive(c: number, t = THRESHOLDS.cognitiveReadiness): Sta
   return rated('action', `Below ${t.watchAtLeast.value} (team rule)`)
 }
 
+export function rateSpo2(v: number, t = THRESHOLDS.spo2): StatusResult {
+  if (v >= t.nominalAtLeast.value) return rated('nominal', `${t.nominalAtLeast.value}% or higher`)
+  if (v >= t.watchAtLeast.value) return rated('watch', `${t.watchAtLeast.value}-${t.nominalAtLeast.value - 1}%`)
+  return rated('action', `Below ${t.watchAtLeast.value}%: low saturation emergency`)
+}
+
+export function rateVision(answer: number, t = THRESHOLDS.visionCheck): StatusResult {
+  return answer >= t.changeIsWatch.value
+    ? rated('watch', 'Change in vision reported (team rule). Log an ocular ultrasound.')
+    : rated('nominal', 'No change in vision reported')
+}
+
+/** Exercise sessions completed in the last 7 days (team rule). */
+export function rateExercise(sessions: number, t = THRESHOLDS.exerciseAdherence): StatusResult {
+  const w = t.windowDays.value
+  if (sessions >= t.nominalAtLeast.value) return rated('nominal', `${sessions} of ${w} days exercised (team rule)`)
+  if (sessions >= t.watchAtLeast.value) return rated('watch', `${sessions} of ${w} days exercised, below ${t.nominalAtLeast.value} (team rule)`)
+  return rated('action', `${sessions} of ${w} days exercised, below ${t.watchAtLeast.value} (team rule)`)
+}
+
 // ---------------------------------------------------------------------------
 // History rules: these need more than the latest reading.
 // ---------------------------------------------------------------------------
@@ -197,5 +217,9 @@ export function evaluateVital(vital: VitalType, history: VitalReading[], t: Thre
       return rateTemperature(latest.value, t.coreTemperature)
     case 'cognitiveReadiness':
       return rateCognitive(latest.value, t.cognitiveReadiness)
+    case 'spo2':
+      return rateSpo2(latest.value, t.spo2)
+    case 'visionCheck':
+      return rateVision(latest.value, t.visionCheck)
   }
 }

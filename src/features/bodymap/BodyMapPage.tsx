@@ -11,7 +11,7 @@ import { BodyFigure } from './BodyFigure'
 import { ZonePanel } from './ZonePanel'
 
 export function BodyMapPage() {
-  const { crew, byVital, dose, environmentId } = useCrewHealth()
+  const { crew, byVital, dose, exercise, environmentId } = useCrewHealth()
   const [params, setParams] = useSearchParams()
   const raw = params.get('zone')
   const selected: BodyZone = isBodyZone(raw) ? raw : 'heart-circulation'
@@ -22,12 +22,12 @@ export function BodyMapPage() {
     for (const z of BODY_ZONES) {
       const hasImaging = byVital.imagingLog.history.some((r) => r.kind === 'imaging' && z.imaging.includes(r.modality))
       out[z.id] = rollUpZone(
-        z.indicators.map((i) => (i === 'radiation' ? dose.status : byVital[i].result)),
+        z.indicators.map((i) => (i === 'radiation' ? dose.status : i === 'exerciseAdherence' ? exercise.result : byVital[i].result)),
         hasImaging,
       )
     }
     return out
-  }, [byVital, dose])
+  }, [byVital, dose, exercise])
   const statuses = Object.fromEntries(BODY_ZONES.map((z) => [z.id, zoneStatus[z.id].status])) as Record<BodyZone, Status>
 
   return (
@@ -75,7 +75,7 @@ export function BodyMapPage() {
           </div>
         </div>
 
-        <ZonePanel zone={getZone(selected)} status={zoneStatus[selected]} byVital={byVital} dose={dose} environmentId={environmentId} />
+        <ZonePanel zone={getZone(selected)} status={zoneStatus[selected]} byVital={byVital} dose={dose} exercise={exercise} environmentId={environmentId} />
       </div>
     </div>
   )

@@ -23,6 +23,8 @@ const DECIMALS: Record<ScalarVitalType, number> = {
   sleepHours: 1,
   mood: 0,
   cognitiveReadiness: 0,
+  spo2: 0,
+  visionCheck: 0,
 }
 
 /** Turn a reading into display strings. Never returns "NaN". */
@@ -33,6 +35,7 @@ export function formatReading(r: VitalReading): { value: string; unit: string } 
     case 'imaging':
       return { value: MODALITY_LABEL[r.modality], unit: '' }
     case 'scalar':
+      if (r.vital === 'visionCheck') return { value: r.value ? 'Change reported' : 'No change', unit: '' }
       return { value: formatNumber(r.value, DECIMALS[r.vital]), unit: VITAL_META[r.vital].unit }
   }
 }

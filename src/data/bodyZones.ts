@@ -17,7 +17,7 @@ export interface ZoneHazard {
 }
 
 /** What a zone's status is rolled up from. */
-export type ZoneIndicator = RatedVitalType | 'radiation'
+export type ZoneIndicator = RatedVitalType | 'radiation' | 'exerciseAdherence'
 
 export interface ZoneInfo {
   id: BodyZone
@@ -68,9 +68,8 @@ export const BODY_ZONES: ZoneInfo[] = [
     does: 'Your eyes turn light into signals that travel along the optic nerve to the brain, so you can see.',
     risks: [risk('Spaceflight Associated Neuro-ocular Syndrome (SANS)', 'Changes to the eyes and the nerve behind them that are linked to spaceflight.')],
     hazards: [H.gravityOrgans],
-    indicators: [],
+    indicators: ['visionCheck'],
     imaging: ['ocular-ultrasound'],
-    untrackedNote: 'Eye scans are logged for people to review. VIGIL does not rate them.',
   },
   {
     id: 'heart-circulation',
@@ -93,9 +92,8 @@ export const BODY_ZONES: ZoneInfo[] = [
       risk('Decompression Sickness', 'Illness caused by a fast drop in the surrounding pressure.'),
     ],
     hazards: [H.closedPressure],
-    indicators: [],
+    indicators: ['spo2'],
     imaging: [],
-    untrackedNote: 'VIGIL does not track breathing rate or blood oxygen yet, so this zone has no rating.',
   },
   {
     id: 'gut-nutrition',
@@ -119,9 +117,8 @@ export const BODY_ZONES: ZoneInfo[] = [
       risk('Injury from Dynamic Loads', 'Injury from sudden forces on the body.'),
     ],
     hazards: [H.gravityBones],
-    indicators: [],
+    indicators: ['exerciseAdherence'],
     imaging: ['bone'],
-    untrackedNote: 'Bone scans are logged for people to review. VIGIL does not rate them.',
   },
   {
     id: 'immune-blood',

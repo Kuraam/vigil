@@ -40,3 +40,16 @@ describe('sanitizePersisted', () => {
     expect(sanitizePersisted({ simSeed: SIM_SEED, readings: [{ id: 'x' }] }).readings).toBeUndefined()
   })
 })
+
+describe('sanitizePersisted (phase 3 fields)', () => {
+  const ok = { simSeed: SIM_SEED, simVersion: SIM_VERSION, readings: [] }
+  it('keeps routine and runs only with current data', () => {
+    expect(sanitizePersisted({ ...ok, routine: { a: {} }, runs: [] })).toMatchObject({ routine: { a: {} }, runs: [] })
+    expect(sanitizePersisted({ ...ok, simVersion: 2, routine: { a: {} }, runs: [] }).routine).toBeUndefined()
+    expect(sanitizePersisted({ ...ok, routine: [], runs: 'x' })).not.toHaveProperty('runs')
+  })
+  it('keeps the SPE toggle and brief questions when well-typed', () => {
+    expect(sanitizePersisted({ speWarning: true, briefQuestions: 'q' })).toEqual({ speWarning: true, briefQuestions: 'q' })
+    expect(sanitizePersisted({ speWarning: 'yes' })).toEqual({})
+  })
+})

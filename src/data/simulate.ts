@@ -9,13 +9,13 @@
  * are not thresholds. Two scripted storylines sit on top (see STORYLINES).
  */
 import { between, gaussian, mulberry32 } from '../lib/prng'
-import type { BodyZone, ImagingModality, ScalarVitalType, VitalReading } from '../types'
+import type { BodyZone, ImagingModality, RoutineLog, ScalarVitalType, VitalReading } from '../types'
 import { CREW } from './crew'
 import { PRIOR_DOSE_RANGE } from './radiation'
 
 export const SIM_SEED = 20261004
 /** Bump when the generated data changes shape or content, so stale saved data is replaced. */
-export const SIM_VERSION = 2
+export const SIM_VERSION = 3
 export const SIM_DAYS = 30
 /** Fictional mission start. Day 1 begins at this instant. */
 export const MISSION_EPOCH = Date.UTC(2031, 2, 1, 0, 0, 0)
@@ -79,6 +79,8 @@ const IMAGING_EVERY = 7
 
 export function generateReadings(seed: number = SIM_SEED, days: number = SIM_DAYS): VitalReading[] {
   const rand = mulberry32(seed)
+  // Phase 3 indicators draw from their own stream so earlier data and storylines stay identical.
+  const rand2 = mulberry32(seed ^ 0x5b02)
   const out: VitalReading[] = []
 
   CREW.forEach((crew, crewIndex) => {
@@ -125,6 +127,10 @@ export function generateReadings(seed: number = SIM_SEED, days: number = SIM_DAY
         scalar('sleepHours', sleep),
         scalar('mood', mood),
         scalar('cognitiveReadiness', cog),
+        // SpO2: mostly 96-99 %.
+        scalar('spo2', Math.round(clamp(97.6 + 0.9 * gaussian(rand2), 95, 99))),
+        // Vision self-check: no change reported (0) in the simulated history.
+        scalar('visionCheck', 0),
       )
 
       if ((day + crewIndex * 2) % IMAGING_EVERY === 3) {
@@ -142,4 +148,32 @@ export function generatePriorDoses(seed: number = SIM_SEED): Record<string, numb
   const rand = mulberry32(seed ^ 0x5eed)
   const [lo, hi] = PRIOR_DOSE_RANGE
   return Object.fromEntries(CREW.map((c) => [c.id, Math.round(between(rand, lo, hi))]))
+}
+
+/**
+ * Seeded routine history for days 1..SIM_DAYS-1 (today, day 30, starts empty).
+ * Storylines: the flight engineer misses "Protect sleep window" and the check-in
+ * from day 22; the mission specialist skips exercise on day 29 (fever). Others
+ * are mostly consistent with occasional realistic misses.
+ */
+export function generateRoutine(seed: number = SIM_SEED, days: number = SIM_DAYS): RoutineLog {
+  const rand = mulberry32(seed ^ 0x7a5c)
+  const missRate: Record<string, number> = { exercise: 0.07, nutrition: 0.08, sleep: 0.05, checkin: 0.06, connection: 0.3 }
+  const hour: Record<string, number> = { exercise: 10, nutrition: 13, sleep: 21, checkin: 8, connection: 19 }
+  const log: RoutineLog = {}
+  for (const crew of CREW) {
+    log[crew.id] = {}
+    for (let day = 1; day < days; day++) {
+      const entry: Record<string, string> = {}
+      for (const task of Object.keys(missRate)) {
+        const missed = rand() < missRate[task]
+        const storyMiss =
+          (crew.id === STORYLINES.sleepDebt.crewId && day >= STORYLINES.sleepDebt.fromDay && (task === 'sleep' || task === 'checkin')) ||
+          (crew.id === STORYLINES.fever.crewId && day === STORYLINES.fever.days[0] && task === 'exercise')
+        if (!missed && !storyMiss) entry[task] = new Date(MISSION_EPOCH + (day - 1) * DAY_MS + hour[task] * 3_600_000).toISOString()
+      }
+      log[crew.id][day] = entry
+    }
+  }
+  return log
 }

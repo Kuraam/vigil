@@ -1,7 +1,7 @@
 import { isCrewId } from '../data/crew'
 import { isEnvironmentId } from '../data/environments'
 import { SIM_SEED, SIM_VERSION } from '../data/simulate'
-import type { EnvironmentId, VitalReading } from '../types'
+import type { EnvironmentId, ProtocolRun, RoutineLog, VitalReading } from '../types'
 
 export interface PersistedSlice {
   crewId: string
@@ -10,6 +10,12 @@ export interface PersistedSlice {
   /** Generator version the readings came from; stale versions are regenerated. */
   simVersion: number
   readings: VitalReading[]
+  routine: RoutineLog
+  runs: ProtocolRun[]
+  /** Demo toggle: a solar particle event warning is active. */
+  speWarning: boolean
+  /** Free-text questions for the flight surgeon, included in the Downlink brief. */
+  briefQuestions: string
 }
 
 /**
@@ -29,6 +35,11 @@ export function sanitizePersisted(raw: unknown): Partial<PersistedSlice> {
     patch.simSeed = SIM_SEED
     patch.simVersion = SIM_VERSION
     patch.readings = p.readings as VitalReading[]
+    // Routine and protocol runs belong to the same generated dataset.
+    if (typeof p.routine === 'object' && p.routine !== null && !Array.isArray(p.routine)) patch.routine = p.routine as RoutineLog
+    if (Array.isArray(p.runs)) patch.runs = p.runs as ProtocolRun[]
   }
+  if (typeof p.speWarning === 'boolean') patch.speWarning = p.speWarning
+  if (typeof p.briefQuestions === 'string') patch.briefQuestions = p.briefQuestions
   return patch
 }

@@ -9,6 +9,9 @@ export type VitalType =
   | 'sleepHours'
   | 'mood'
   | 'cognitiveReadiness'
+  | 'spo2'
+  /** Daily yes/no "Any change in near or distance vision?" stored as 1 (yes) or 0 (no). */
+  | 'visionCheck'
   | 'imagingLog'
 
 /** Vitals that carry a single number. */

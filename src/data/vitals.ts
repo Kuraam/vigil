@@ -10,6 +10,8 @@ export const VITALS: VitalMeta[] = [
   { type: 'sleepHours', label: 'Sleep', unit: 'h', method: 'Wearable sleep duration' },
   { type: 'mood', label: 'Mood', unit: '/ 5', method: 'Daily self-report' },
   { type: 'cognitiveReadiness', label: 'Cognitive readiness', unit: '/ 100', method: 'Daily reaction-time battery' },
+  { type: 'spo2', label: 'Blood oxygen (SpO2)', unit: '%', method: 'Finger pulse oximeter, at rest' },
+  { type: 'visionCheck', label: 'Vision self-check', unit: '', method: 'Daily: any change in near or distance vision?' },
   { type: 'imagingLog', label: 'Imaging log', unit: '', method: 'Crew-performed scans' },
 ]
 
