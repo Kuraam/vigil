@@ -172,8 +172,14 @@ export function environmentEffects(zone: ZoneInfo, env: EnvironmentId, delayLabe
   if (hazards.has('gravity-fields')) lines.push(`${GRAVITY[env]} The body adapts again at every change, including the return to Earth.`)
   if (hazards.has('space-radiation')) {
     const r = DOSE_RATES[env]
+    // Compare only with the other environment types, never with itself.
+    const others = [
+      env !== 'spacecraft-transit' && `${DOSE_RATES['spacecraft-transit'].rate.value} in transit`,
+      env !== 'surface-base' && env !== 'pressurized-rover' && `${DOSE_RATES['surface-base'].rate.value} on the Mars surface`,
+      env !== 'orbital-station' && `${DOSE_RATES['orbital-station'].rate.value} in low Earth orbit`,
+    ].filter(Boolean)
     lines.push(
-      `Radiation here is about ${r.rate.value} mSv per day${r.range ? ` (range ${r.range[0]}-${r.range[1]})` : ''}, compared with 1.84 in transit and 0.64 on the Mars surface.`,
+      `Radiation here is about ${r.rate.value} mSv per day${r.range ? ` (range ${r.range[0]}-${r.range[1]})` : ''}, compared with ${others.join(' and ')}.`,
     )
   }
   lines.push(`Help from Earth is ${delayLabel.toLowerCase()} away, one way, so the crew must be ready to act on their own.`)

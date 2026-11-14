@@ -11,7 +11,8 @@
     "lint": "oxlint",
     "test": "node scripts/vitest.mjs run",
     "smoke": "node scripts/smoke.mjs",
-    "sync:team": "node scripts/sync-team.mjs"
+    "sync:team": "node scripts/sync-team.mjs",
+    "screenshots": "node scripts/screenshots.mjs"
   },
   "dependencies": {
     "@fontsource/ibm-plex-mono": "^5.3.0",
