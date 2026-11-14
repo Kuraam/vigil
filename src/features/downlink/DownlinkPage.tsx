@@ -58,7 +58,7 @@ export function DownlinkPage() {
         aside={<SimulatedTag>Simulated data. Concept demonstration.</SimulatedTag>}
       />
 
-      <section aria-labelledby="build-heading" className="space-y-4 rounded-lg border border-line bg-panel p-4 print:hidden sm:p-5">
+      <section aria-labelledby="build-heading" data-tour="downlink-build" className="space-y-4 rounded-lg border border-line bg-panel p-4 print:hidden sm:p-5">
         <h2 id="build-heading" className="text-base font-semibold text-fg">
           Build brief
         </h2>

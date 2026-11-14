@@ -17,7 +17,7 @@ interface VigilState extends PersistedSlice {
   saveRun: (run: ProtocolRun) => void
   setSpeWarning: (on: boolean) => void
   setBriefQuestions: (text: string) => void
-  /** Regenerate the simulated dataset from the fixed seed and drop everything logged. */
+  /** Restore the seeded demo state: regenerated data, default crew and environment, nothing logged. */
   resetSimulation: () => void
 }
 
@@ -55,7 +55,8 @@ export const useVigilStore = create<VigilState>()(
       saveRun: (run) => set((s) => ({ runs: [...s.runs.filter((r) => r.id !== run.id), run] })),
       setSpeWarning: (speWarning) => set({ speWarning }),
       setBriefQuestions: (briefQuestions) => set({ briefQuestions }),
-      resetSimulation: () => set({ ...fresh(), speWarning: false, briefQuestions: '' }),
+      resetSimulation: () =>
+        set({ ...fresh(), crewId: DEFAULT_CREW_ID, environmentId: DEFAULT_ENVIRONMENT_ID, speWarning: false, briefQuestions: '' }),
     }),
     {
       name: STORE_KEY,

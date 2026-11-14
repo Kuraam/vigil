@@ -286,6 +286,78 @@ try {
     await page.close()
   }
 
+  // FIRST VISIT: Start here panel and the full 6-stop tour (keyboard driven).
+  {
+    const { page, errors } = await openPage()
+    await page.goto(base + '/overview', { waitUntil: 'networkidle' })
+    check('Start here panel shows on first visit', await page.getByTestId('start-here').isVisible())
+    await page.getByRole('button', { name: 'Take the 60-second tour' }).click()
+    const panel = page.getByTestId('tour-panel')
+    const stops = [
+      { title: 'Overview and signal delay', path: '/overview', target: 'comm' },
+      { title: 'The environment changes the priorities', path: '/overview', target: 'environment' },
+      { title: 'Body Map', path: '/body-map', target: 'body-map' },
+      { title: 'Triage and the fever protocol', path: '/triage', target: 'triage-queue' },
+      { title: 'Downlink brief', path: '/downlink', target: 'downlink-build' },
+      { title: 'Sources', path: '/sources', target: 'sources-about' },
+    ]
+    for (const [i, s] of stops.entries()) {
+      await page.locator('#tour-title', { hasText: s.title }).waitFor({ timeout: 5000 }).catch(() => {})
+      await page.locator(`.tour-highlight[data-tour="${s.target}"]`).waitFor({ timeout: 5000 }).catch(() => {})
+      const ok =
+        (await page.locator('#tour-title').textContent())?.trim() === s.title &&
+        new URL(page.url()).pathname === s.path &&
+        (await page.locator(`.tour-highlight[data-tour="${s.target}"]`).count()) === 1
+      check(`tour stop ${i + 1}: ${s.title}`, ok, page.url())
+      if (i === 1) {
+        const ranking = (await page.getByTestId('hazard-priority').locator('li').first().textContent()) ?? ''
+        check('tour stop 2 switched to Surface Base (gravity ranked first)', ranking.includes('Gravity Fields'))
+      }
+      if (i === 2) check('tour stop 3 opens Arjun, immune system and blood', page.url().includes('zone=immune-blood') && ((await page.locator('#zone-heading').textContent()) ?? '').includes('Immune system and blood'))
+      // Drive the tour with the keyboard: focus Next/Finish and press Enter.
+      await panel.getByRole('button', { name: i === stops.length - 1 ? 'Finish tour' : 'Next' }).focus()
+      await page.keyboard.press('Enter')
+    }
+    check('tour finishes and closes', (await panel.count()) === 0)
+    await page.getByRole('button', { name: 'Take the tour' }).click()
+    await panel.waitFor({ timeout: 3000 })
+    await page.keyboard.press('Escape')
+    check('Escape skips the tour', (await panel.count()) === 0)
+    await page.goto(base + '/overview', { waitUntil: 'networkidle' })
+    check('Start here stays dismissed after starting the tour', (await page.getByTestId('start-here').count()) === 0)
+    check('tour console clean', errors.length === 0, errors.join(' | '))
+    await page.evaluate(() => localStorage.clear())
+    await page.close()
+  }
+
+  // RESET: change demo state, then restore the seeded state through the confirm dialog.
+  {
+    const { page, errors } = await openPage()
+    await page.goto(base + '/vitals', { waitUntil: 'networkidle' })
+    await page.getByLabel('Crew member', { exact: true }).selectOption('crew-04')
+    const card = page.locator('article', { has: page.getByRole('heading', { name: 'Heart rate', exact: true }) })
+    await card.getByRole('button', { name: 'Log heart rate reading' }).click()
+    await card.getByLabel('Value (bpm)').fill('150')
+    await card.getByLabel('Value (bpm)').press('Enter')
+    await page.getByRole('link', { name: 'Sources' }).click()
+    await page.waitForURL('**/sources')
+    await page.getByRole('button', { name: 'Reset demo data' }).click()
+    check('reset asks for confirmation', await page.getByRole('dialog', { name: 'Reset demo data?' }).isVisible())
+    await page.getByRole('dialog').getByRole('button', { name: 'Cancel' }).click()
+    check('cancel keeps changes', (await page.getByLabel('Crew member', { exact: true }).inputValue()) === 'crew-04')
+    await page.getByRole('button', { name: 'Reset demo data' }).click()
+    await page.getByRole('dialog').getByRole('button', { name: 'Reset', exact: true }).click()
+    check('reset restores default crew', (await page.getByLabel('Crew member', { exact: true }).inputValue()) === 'crew-01')
+    check('reset confirms in a status message', (await page.getByTestId('reset-demo').textContent())?.includes('Demo data reset') ?? false)
+    await page.getByLabel('Crew member', { exact: true }).selectOption('crew-04')
+    await page.getByRole('link', { name: 'Overview' }).click()
+    const hr = page.locator('article', { has: page.getByRole('heading', { name: 'Heart rate', exact: true }) })
+    check('reset removed the logged reading (back to seeded 108)', ((await hr.textContent()) ?? '').includes('108'))
+    check('reset console clean', errors.length === 0, errors.join(' | '))
+    await page.evaluate(() => localStorage.clear())
+    await page.close()
+  }
+
   // Keyboard: on a fresh page the first focusable element reached by Tab is the skip link.
   // (Headless Chrome can spend the first Tab focusing the document itself.)
   {

@@ -9,6 +9,8 @@ export type ProtocolId =
   | 'sleep-debt'
   | 'low-mood'
   | 'radiation'
+  | 'vision-change'
+  | 'low-exercise'
 
 export type ProtocolPhase = 'confirm' | 'assess' | 'act' | 'escalate'
 

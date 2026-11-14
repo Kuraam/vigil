@@ -14,6 +14,7 @@ import { addMeasurement, answer, completeRun, phaseDone, progress, redFlagRaised
 import { useVigilStore } from '../../lib/store'
 import type { EnvironmentId, ProtocolDef, ProtocolPhase, ProtocolRun, RatedVitalType } from '../../types'
 import { LogReadingForm } from '../vitals/LogReadingForm'
+import { VisionCheckForm } from '../vitals/VisionCheck'
 
 function Phase({ n, title, phase, run, def, children }: { n: number; title: string; phase: ProtocolPhase; run: ProtocolRun; def: ProtocolDef; children: ReactNode }) {
   const done = phaseDone(run, def, phase)
@@ -135,6 +136,9 @@ export function ProtocolRunner({
                   <span className="readout text-fg">{shown ? `${shown.value} ${shown.unit}` : 'No data'}</span>
                   <StatusChip result={row.result} title={row.result.detail} />
                 </p>
+                {v === 'visionCheck' ? (
+                  <VisionCheckForm crewId={run.crewId} onSaved={(reading, text) => saveRun(addMeasurement(run, reading.id, text, reading.timestamp))} />
+                ) : (
                 <LogReadingForm
                   vital={v}
                   label={VITAL_META[v].label}
@@ -142,6 +146,7 @@ export function ProtocolRunner({
                   crewId={run.crewId}
                   onSaved={(reading, text) => saveRun(addMeasurement(run, reading.id, text, reading.timestamp))}
                 />
+                )}
               </div>
             )
           })}

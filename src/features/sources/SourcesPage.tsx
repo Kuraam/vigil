@@ -1,6 +1,7 @@
 import { ExternalLink } from 'lucide-react'
 import { PageHeader } from '../../components/PageHeader'
 import TEAM from '../../data/team.json'
+import { ResetDemo } from './ResetDemo'
 import { ALL_SOURCES, ENDORSEMENT_NOTE, SOURCE_GROUP_LABEL, SOURCES, type SourceGroup } from '../../data/sources'
 
 const ORDER: SourceGroup[] = ['challenge', 'nasa', 'agency', 'clinical', 'team']
@@ -19,7 +20,7 @@ export function SourcesPage() {
         description="Every figure VIGIL shows comes from one of these sources. Each entry lists where it is used."
       />
 
-      <section aria-labelledby="about-heading" className="max-w-4xl rounded-lg border border-line bg-panel p-4 sm:p-5">
+      <section aria-labelledby="about-heading" data-tour="sources-about" className="max-w-4xl rounded-lg border border-line bg-panel p-4 sm:p-5">
         <h2 id="about-heading" className="text-lg font-semibold text-fg">
           About VIGIL
         </h2>
@@ -42,6 +43,8 @@ export function SourcesPage() {
           </li>
         </ul>
       </section>
+
+      <ResetDemo />
 
       {ORDER.map((group) => {
         const items = ALL_SOURCES.filter((s) => s.group === group)

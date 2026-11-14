@@ -76,7 +76,7 @@ export function TriagePage() {
       </div>
 
       <div className={`grid gap-6 ${run ? 'xl:grid-cols-[minmax(0,24rem)_minmax(0,1fr)]' : ''}`}>
-        <section aria-labelledby="queue-heading" className={`rounded-lg border border-line bg-panel ${run ? 'hidden xl:block' : ''}`}>
+        <section aria-labelledby="queue-heading" data-tour="triage-queue" className={`rounded-lg border border-line bg-panel ${run ? 'hidden xl:block' : ''}`}>
           <h2 id="queue-heading" className="px-4 pt-4 pb-3 text-base font-semibold text-fg sm:px-5">
             Alert queue <span className="readout font-normal text-fg-muted">({alerts.length})</span>
           </h2>

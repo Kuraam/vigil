@@ -1,6 +1,7 @@
 import { PageHeader } from '../../components/PageHeader'
 import { SimulatedTag } from '../../components/SimulatedTag'
 import { useCrewHealth } from '../../lib/useCrewHealth'
+import { StartHere } from '../tour/StartHere'
 import { HazardPanel } from './HazardPanel'
 import { HazardPriorityPanel } from './HazardPriorityPanel'
 import { RadiationPanel } from './RadiationPanel'
@@ -20,6 +21,8 @@ export function OverviewPage() {
         description={crew ? `${crew.role} (${crew.callSign}). Latest readings from mission day ${missionDay}.` : undefined}
         aside={<SimulatedTag>Simulated crew and readings</SimulatedTag>}
       />
+
+      <StartHere />
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_26rem]">
         <div className="min-w-0 space-y-6">
@@ -42,7 +45,7 @@ export function OverviewPage() {
           </section>
         </div>
 
-        <div className="min-w-0 space-y-6">
+        <div className="min-w-0 space-y-6" data-tour="environment">
           <HazardPriorityPanel environmentId={environmentId} />
           <RadiationPanel dose={dose} environmentId={environmentId} missionDay={missionDay} />
           <HazardPanel />

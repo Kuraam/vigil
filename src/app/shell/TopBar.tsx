@@ -56,6 +56,7 @@ export function TopBar() {
             onChange={(v) => setEnvironment(v as EnvironmentId)}
             options={ENVIRONMENTS.map((e) => ({ value: e.id, label: e.name }))}
           />
+          <div data-tour="comm" className="flex flex-wrap items-end gap-x-4 gap-y-3">
           <CommDelay environment={environment} />
           <div className="flex flex-col gap-1.5 self-stretch justify-end">
             <span
@@ -73,6 +74,7 @@ export function TopBar() {
               <ListChecks aria-hidden className="size-4 text-accent" />
               <span className="readout">{due}</span> due now
             </Link>
+          </div>
           </div>
         </div>
       </div>

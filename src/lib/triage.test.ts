@@ -117,3 +117,28 @@ describe('protocol content safety', () => {
     }
   })
 })
+
+describe('phase 4 protocols', () => {
+  it('vision change: test each eye, red flags escalate, links SANS', () => {
+    const p = PROTOCOLS['vision-change']
+    expect(p.howToMeasure[0]).toContain('each eye separately')
+    expect(p.symptoms.filter((s) => s.redFlag).map((s) => s.text)).toEqual(['Sudden vision loss', 'Severe headache', 'Eye pain'])
+    expect(p.steps.map((s) => s.text).join(' ')).toContain('ocular ultrasound')
+    expect(p.steps.map((s) => s.text).join(' ')).toContain('next Downlink brief')
+    expect(p.risks).toEqual(['Spaceflight Associated Neuro-ocular Syndrome (SANS)'])
+  })
+
+  it('low exercise: make-up session prioritising resistance, links both musculoskeletal risks', () => {
+    const p = PROTOCOLS['low-exercise']
+    expect(p.steps.map((s) => s.text)).toContain('Schedule a make-up session today, prioritising the resistance exercise.')
+    expect(p.steps.map((s) => s.text)).toContain('Flag schedule conflicts to the commander.')
+    expect(p.risks).toEqual(['Spaceflight-Induced Bone Changes', 'Reduced Cardiorespiratory and Musculoskeletal Fitness'])
+  })
+
+  it('alerts route vision changes and low adherence to the new protocols', () => {
+    expect(buildAlerts(health('crew-04')).find((a) => a.indicator === 'exerciseAdherence')?.protocolId).toBe('low-exercise')
+    const changed = [...readings, { id: 'v', crewId: 'crew-01', vital: 'visionCheck', kind: 'scalar', value: 1, missionDay: SIM_DAYS, timestamp: '2031-03-30T12:00:00.000Z', simulated: false } as const]
+    const h = computeCrewHealth(changed, 'crew-01', 'spacecraft-transit', SIM_DAYS, ctx)
+    expect(buildAlerts(h).find((a) => a.indicator === 'visionCheck')).toMatchObject({ protocolId: 'vision-change', result: { status: 'watch' } })
+  })
+})

@@ -206,6 +206,44 @@ const DEFS: ProtocolDef[] = [
     risks: ['Radiation-Induced Cancers'],
     related: [],
   },
+  {
+    id: 'vision-change',
+    title: 'Vision change',
+    trigger: 'A change in near or distance vision reported in the daily self-check.',
+    measure: ['visionCheck'],
+    howToMeasure: ['Test each eye separately, at near and at far.'],
+    notes: [
+      {
+        text: 'Sudden vision loss, severe headache or eye pain escalate now. Otherwise, flag the change for the flight surgeon in the next Downlink brief.',
+        source: SOURCES.team.label,
+      },
+    ],
+    symptoms: [redFlag('sudden-loss', 'Sudden vision loss'), redFlag('headache', 'Severe headache'), redFlag('eye-pain', 'Eye pain')],
+    steps: [
+      confirm('each-eye', 'Test each eye separately at near and far, then answer the vision check below.'),
+      act('ultrasound', 'Log an ocular ultrasound if available (Vitals, imaging log).'),
+      act('flag', 'Flag the change for the flight surgeon in the next Downlink brief.'),
+      escalateStep,
+    ],
+    risks: ['Spaceflight Associated Neuro-ocular Syndrome (SANS)'],
+    related: [],
+  },
+  {
+    id: 'low-exercise',
+    title: 'Low exercise adherence',
+    trigger: 'Fewer than 6 exercise sessions in the last 7 days.',
+    howToMeasure: ['Count the exercise sessions completed in the last 7 days on the Routine page.'],
+    notes: [],
+    symptoms: [],
+    steps: [
+      confirm('count', 'Exercise sessions in the last 7 days checked on the Routine page.'),
+      act('makeup', 'Schedule a make-up session today, prioritising the resistance exercise.'),
+      act('conflicts', 'Flag schedule conflicts to the commander.'),
+      escalateStep,
+    ],
+    risks: ['Spaceflight-Induced Bone Changes', 'Reduced Cardiorespiratory and Musculoskeletal Fitness'],
+    related: [],
+  },
 ]
 
 export const PROTOCOLS = Object.fromEntries(DEFS.map((d) => [d.id, d])) as Record<ProtocolId, ProtocolDef>

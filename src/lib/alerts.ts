@@ -57,6 +57,10 @@ function protocolFor(indicator: AlertIndicator, h: CrewHealth): ProtocolId | und
     case 'radiation':
     case 'spe':
       return 'radiation'
+    case 'visionCheck':
+      return 'vision-change'
+    case 'exerciseAdherence':
+      return 'low-exercise'
     default:
       return undefined
   }

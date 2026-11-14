@@ -8,8 +8,16 @@ import type { VitalReading } from '../../types'
  * Daily yes/no vision self-check. "Yes" is rated watch and suggests logging an
  * ocular ultrasound. Shared by the Vitals page and the Routine checklist.
  */
-export function VisionCheckForm({ onSaved }: { onSaved?: (changed: boolean) => void }) {
-  const crewId = useVigilStore((s) => s.crewId)
+export function VisionCheckForm({
+  crewId: crewIdProp,
+  onSaved,
+}: {
+  /** Answer for this crew member instead of the selected one (protocol runner). */
+  crewId?: string
+  onSaved?: (reading: VitalReading, text: string) => void
+}) {
+  const selectedCrew = useVigilStore((s) => s.crewId)
+  const crewId = crewIdProp ?? selectedCrew
   const readings = useVigilStore((s) => s.readings)
   const addReading = useVigilStore((s) => s.addReading)
   const [msg, setMsg] = useState('')
@@ -23,7 +31,7 @@ export function VisionCheckForm({ onSaved }: { onSaved?: (changed: boolean) => v
         ? `Saved for mission day ${r.missionDay}: change reported. Log an ocular ultrasound in the imaging log.`
         : `Saved for mission day ${r.missionDay}: no change.`,
     )
-    onSaved?.(changed)
+    onSaved?.(r, `Vision self-check: ${changed ? 'change reported' : 'no change'}`)
   }
 
   return (
