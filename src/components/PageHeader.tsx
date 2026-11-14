@@ -1,21 +1,23 @@
 import { useEffect, useRef, type ReactNode } from 'react'
+import { useLocation } from 'react-router'
 
-let firstRender = true
+/** Path of the last page that rendered a header; null until the first page loads. */
+let lastPath: string | null = null
 
 /**
- * Page title + one-line description. After in-app navigation, focus moves to
- * the heading so keyboard and screen-reader users land on the new page.
+ * Page title + one-line description. After in-app navigation to a different
+ * route, focus moves to the heading so keyboard and screen-reader users land
+ * on the new page. Comparing paths (not a "first render" flag) keeps this
+ * correct under React StrictMode, which runs effects twice in development.
  */
 export function PageHeader({ title, description, aside }: { title: string; description?: ReactNode; aside?: ReactNode }) {
   const ref = useRef<HTMLHeadingElement>(null)
+  const { pathname } = useLocation()
 
   useEffect(() => {
-    if (firstRender) {
-      firstRender = false
-      return
-    }
-    ref.current?.focus({ preventScroll: true })
-  }, [])
+    if (lastPath !== null && lastPath !== pathname) ref.current?.focus({ preventScroll: true })
+    lastPath = pathname
+  }, [pathname])
 
   return (
     <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
