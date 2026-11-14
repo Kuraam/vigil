@@ -8,16 +8,20 @@
 Built for the 2026 NASA Space Apps Challenge, *Create Health Monitoring Software for Astronauts on Space Missions*.
 
 > **Simulated data. Concept demonstration, not a medical device.**
-> Every crew member and reading in this build is fictional and generated from a fixed seed. Status thresholds are deliberately left empty until they can be sourced.
+> Every crew member and reading in this build is fictional and generated from a fixed seed. Status thresholds are cited; tiers marked "VIGIL triage rule" are team-defined and not clinically validated.
 
-## What works today (Phase 1)
+## What works today (Phases 1 and 2)
 
-- **Mission shell.** The top bar shows mission day, a ticking mission elapsed time (MET), a crew member selector, an environment selector, and the one-way signal delay to Earth on a 0 to 22.3 minute scale.
-- **Overview.** For the selected crew member: a status summary, the latest reading of all nine vitals (with change against the 7-day mean), and the five NASA Human Research Program hazards.
-- **Empty states** for Body Map, Vitals, Triage, Routine and Downlink. Each one describes what is coming and in which phase.
+- **Mission shell.** Mission day, a ticking mission elapsed time (MET), crew and environment selectors, and the one-way signal delay to Earth on a 0 to 22.3 minute scale.
+- **Overview.** Status summary and the latest reading of all nine vitals, rated nominal, watch or action against cited thresholds (most urgent first), a radiation dose panel, and the five NASA HRP hazards.
+- **Radiation.** Career dose against the 600 mSv limit (NASA-STD-3001), today's dose rate for the selected environment, and days left at that rate. Switching environment changes the rate and days left.
+- **Vitals.** A 30-day trend chart per vital with the nominal band shaded, threshold lines, the personal baseline where the rules use it, the source of every threshold, a data table, and a keyboard form to log a new reading. The imaging log lists scans; they are logged, never rated.
+- **Body Map.** An original SVG figure with eight body systems. Each system takes the worst status of its linked readings and links to the named NASA HRP risks, the hazards that affect it, and how the selected environment changes things.
+- **Sources.** Every source, grouped, with where it is used, plus the About statement and the AI-use disclosure.
+- **Demo storylines.** The flight engineer's sleep debt turns sleep from watch (day 22) to action (day 27). The mission specialist runs 38.3 °C and 108 bpm on days 29-30.
 - **Offline.** No backend, no auth, no network calls. Fonts and icons are bundled.
-- **State persists** (crew, environment, readings) in `localStorage`.
-- **Accessibility.** Full keyboard navigation with a skip link and visible focus ring. Hit targets are at least 44 px. Reduced motion is respected. Status is always shown with an icon, a label and a colour.
+- **State persists** (crew, environment, readings, logged entries) in `localStorage`.
+- **Accessibility.** Full keyboard navigation with a skip link and visible focus ring. Hit targets are at least 44 px. Reduced motion is respected. Status is always shown with an icon, a label and a colour; charts have a text summary and a data table.
 
 ## Run it
 
@@ -55,11 +59,14 @@ src/
   app/                 App root, router, navigation config
     shell/             Top bar, mission clock, comm delay, side nav, layout
   features/
-    overview/          Overview page: status summary, readouts, hazard panel
-    upcoming/          Empty states and copy for later-phase sections
+    overview/          Overview: status summary, readouts, radiation, hazards
+    vitals/            Vitals: Recharts trends, log forms, imaging log
+    bodymap/           Body Map: SVG figure, zone list, zone panel
+    sources/           Sources and About page
+    upcoming/          Empty states for later-phase sections
   components/          Shared UI: StatusChip, PageHeader, SimulatedTag
-  data/                Static and simulated data: crew, vitals, hazards,
-                       environments, thresholds (TODO), seeded generator
+  data/                Sources registry, thresholds, radiation, hazards, body
+                       zones, research, environments, seeded generator
   lib/                 Pure logic: PRNG, status evaluation, formatting,
                        reading helpers, persistence, Zustand store
   types/               Domain model (CrewMember, VitalReading, Hazard, ...)
@@ -74,19 +81,24 @@ The domain layer (`types`, `data`, `lib`) has no React imports and is unit teste
 
 ## Key decisions
 
-- **Thresholds are `null` until sourced.** `src/data/thresholds.ts` gives every range a `value`, a `unit` and a `source`. All values are `TODO(Phase 2)`. Until they are filled, every reading shows a grey **Not assessed** chip. VIGIL never shows a clinical rating it cannot cite.
-- **Simulated data is deterministic.** `src/data/simulate.ts` generates 4 crew × 30 days from seed `20261004`. The ranges in the generator only shape believable demo data; they are not thresholds. One simulated storyline is built in: the flight engineer builds up sleep debt from day 22, which gives Phase 2 trend views a pattern to find.
-- **Comm delay is physics, not medicine.** It is light travel time (Earth to Mars 3.0 to 22.3 min; low Earth orbit about 0.24 s). Rover and surface base are assumed to be on Mars.
+- **Every number has a source.** `src/data/sources.ts` is the single registry; thresholds, dose rates, delays and notes all point at it, a unit test fails if any threshold cites an unregistered source, and the Sources page renders it.
+- **Thresholds are data, rules are code.** `src/data/thresholds.ts` holds each value as `{ value, unit, source }`, exactly as supplied by the team. `src/lib/status.ts` applies them, including the history rules (HRV against a day 1-14 baseline, three short nights for sleep, a three-day mood decline). Values that fall between two given tiers go to the watch tier.
+- **Simulated data is deterministic.** `src/data/simulate.ts` generates 4 crew × 30 days from seed `20261004`. Generator ranges only shape believable demo data. Storyline values are fixed overrides. Saved Phase 1 data is regenerated automatically (data version 2).
+- **Comm delay is physics, not medicine.** Mars mission profile: transit up to 22.3 min, Mars surface 3.0 to 22.3 min (NASA Mars Relay Network), Orbital Station under 1 s.
 - **Status palette is reserved.** Green, amber, red and grey appear only for status, always with a distinct icon shape and a text label. The cyan accent appears only on interactive elements.
 
 ## Roadmap
 
 | Phase | Scope |
 | ----- | ----- |
-| **1. Foundation and mission shell** (this build) | Scaffold, domain model, TODO thresholds, simulated dataset, store, shell, Overview, empty states |
-| **2. Sourced thresholds and trends** | Fill thresholds from cited sources; Vitals page with 30-day Recharts trends and threshold bands; Body Map with symptom logging and linked imaging |
-| **3. Act on it** | Triage decision flows ending in act now, monitor or log; Routine page with countermeasure tasks mapped to the five hazards |
+| **1. Foundation and mission shell** (done) | Scaffold, domain model, TODO thresholds, simulated dataset, store, shell, Overview, empty states |
+| **2. Sourced thresholds and trends** (this build) | Cited thresholds, radiation dose tracking, Vitals trends with logging, Body Map with NASA HRP risks, Sources page, demo storylines |
+| **3. Act on it** | Triage decision flows ending in act now, monitor or log; Routine as a daily countermeasure checklist with a streak |
 | **4. Downlink and demo** | Compact health summary for the next comm window; delay-aware send queue; final polish and demo script |
+
+## Use of AI tools
+
+VIGIL was built by Team Pandas for NASA Space Apps 2026. Code was written with the assistance of Claude (Anthropic), an AI coding assistant, directed and reviewed by the team. All crew data is simulated. VIGIL is not a medical device.
 
 ## Known quirk: Windows drive letter
 

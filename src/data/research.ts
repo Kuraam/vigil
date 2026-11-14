@@ -21,7 +21,8 @@ export interface ResearchItem {
 export const RESEARCH: ResearchItem[] = [
   {
     id: 'archer',
-    name: 'ARCHeR (Artemis II)',
+    // Brief listed "ARCHeR (Artemis II)"; the mission name is omitted per the no-mission-identifiers rule.
+    name: 'ARCHeR',
     description: 'Tracks crew well-being, activity and sleep.',
     status: 'Ongoing NASA investigation',
     zones: ['brain-behaviour'],
