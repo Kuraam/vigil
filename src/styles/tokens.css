@@ -1,0 +1,41 @@
+/*
+ * VIGIL design tokens — the single source of truth for colour, type and motion.
+ * Tailwind v4 turns every `--color-*` / `--font-*` here into utilities
+ * (e.g. `bg-panel`, `text-fg-muted`, `text-watch`, `font-mono`).
+ *
+ * Rules:
+ *  - `accent` is for interactive affordances only (focus, active nav, links).
+ *  - `nominal` / `watch` / `action` / `nodata` are for STATUS ONLY and are
+ *    always paired with an icon and a text label (see StatusChip).
+ *  - Contrast: every text colour below is >= 4.5:1 on `panel` (#12161B).
+ */
+@theme {
+  /* Surfaces, darkest to lightest */
+  --color-bg: #0b0e11;
+  --color-panel: #12161b;
+  --color-raised: #191e24;
+  --color-line: #262d36;
+  --color-line-strong: #36404b;
+
+  /* Text */
+  --color-fg: #e6eaee;
+  --color-fg-muted: #9aa5b1;
+  --color-fg-faint: #7d8794;
+
+  /* The one accent: interactive only */
+  --color-accent: #5cc8e8;
+  --color-accent-ink: #061a21;
+
+  /* Status palette: status only */
+  --color-nominal: #3dd68c;
+  --color-watch: #f5b544;
+  --color-action: #ff6b6b;
+  --color-nodata: #8b95a1;
+
+  /* Type */
+  --font-sans: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', monospace;
+
+  /* Motion */
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+}
