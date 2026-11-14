@@ -1,7 +1,5 @@
 import { createBrowserRouter, Navigate } from 'react-router'
 import { OverviewPage } from '../features/overview/OverviewPage'
-import { EmptyState } from '../features/upcoming/EmptyState'
-import { UPCOMING } from '../features/upcoming/sections'
 import { Shell } from './shell/Shell'
 
 export const router = createBrowserRouter([
@@ -15,8 +13,8 @@ export const router = createBrowserRouter([
       // Lazy routes keep Recharts and page code out of the first bundle.
       { path: 'vitals', lazy: async () => ({ Component: (await import('../features/vitals/VitalsPage')).VitalsPage }) },
       { path: 'triage', lazy: async () => ({ Component: (await import('../features/triage/TriagePage')).TriagePage }) },
-      { path: 'routine', element: <EmptyState section={UPCOMING.routine} /> },
-      { path: 'downlink', element: <EmptyState section={UPCOMING.downlink} /> },
+      { path: 'routine', lazy: async () => ({ Component: (await import('../features/routine/RoutinePage')).RoutinePage }) },
+      { path: 'downlink', lazy: async () => ({ Component: (await import('../features/downlink/DownlinkPage')).DownlinkPage }) },
       { path: 'sources', lazy: async () => ({ Component: (await import('../features/sources/SourcesPage')).SourcesPage }) },
       // Unknown paths fall back to the Overview rather than a blank screen.
       { path: '*', element: <Navigate to="/overview" replace /> },

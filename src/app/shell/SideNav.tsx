@@ -8,7 +8,7 @@ import { NAV } from '../nav'
  */
 export function SideNav() {
   return (
-    <nav aria-label="Primary" className="border-b border-line bg-panel md:w-56 md:shrink-0 md:border-r md:border-b-0">
+    <nav aria-label="Primary" className="print:hidden border-b border-line bg-panel md:w-56 md:shrink-0 md:border-r md:border-b-0">
       <ul className="flex gap-1 overflow-x-auto p-2 md:flex-col md:overflow-visible md:p-3">
         {NAV.map(({ path, label, icon: Icon }) => (
           <li key={path} className="shrink-0">

@@ -55,6 +55,6 @@ export function runTimeline(run: ProtocolRun, def: ProtocolDef): { at: string; t
     if (a) items.push({ at: a.at, text: `${s.redFlag ? 'Red flag' : 'Symptom'} "${s.text}": ${a.yes ? 'YES' : 'no'}` })
   }
   for (const m of run.measurements) items.push({ at: m.at, text: `Re-measured: ${m.label}` })
-  if (run.completedAt) items.push({ at: run.completedAt, text: 'Protocol marked complete' })
+  if (run.completedAt) items.push({ at: run.completedAt, text: 'Marked complete' })
   return items.sort((a, b) => Date.parse(a.at) - Date.parse(b.at))
 }

@@ -10,15 +10,21 @@ Built for the 2026 NASA Space Apps Challenge, *Create Health Monitoring Software
 > **Simulated data. Concept demonstration, not a medical device.**
 > Every crew member and reading in this build is fictional and generated from a fixed seed. Status thresholds are cited; tiers marked "VIGIL triage rule" are team-defined and not clinically validated.
 
-## What works today (Phases 1 and 2)
+## What works today (Phases 1 to 3)
 
 - **Mission shell.** Mission day, a ticking mission elapsed time (MET), crew and environment selectors, and the one-way signal delay to Earth on a 0 to 22.3 minute scale.
 - **Overview.** Status summary and the latest reading of all nine vitals, rated nominal, watch or action against cited thresholds (most urgent first), a radiation dose panel, and the five NASA HRP hazards.
 - **Radiation.** Career dose against the 600 mSv limit (NASA-STD-3001), today's dose rate for the selected environment, and days left at that rate. Switching environment changes the rate and days left.
 - **Vitals.** A 30-day trend chart per vital with the nominal band shaded, threshold lines, the personal baseline where the rules use it, the source of every threshold, a data table, and a keyboard form to log a new reading. The imaging log lists scans; they are logged, never rated.
 - **Body Map.** An original SVG figure with eight body systems. Each system takes the worst status of its linked readings and links to the named NASA HRP risks, the hazards that affect it, and how the selected environment changes things.
+- **Triage.** An alert queue (selected crew member or whole crew), Action first. Each alert opens a guided protocol (confirm, assess, act, escalate) with a timestamp per step, saved and resumable. Re-measuring inside a protocol updates status at once. VIGIL never names medications; protocols are labelled "Concept guidance for demonstration. Not medical advice."
+- **Comm-delay escalation.** Earth reply ETA is the round trip. Orbital Station is ground-guided; every Mars environment is crew-autonomous first. A badge in the top bar shows the mode.
+- **Environment priorities.** The Overview ranks the five hazards for the selected environment (team-defined), and the Routine follows the top-ranked hazard.
+- **Routine.** A daily checklist with points, personal and crew streaks, a 7-day adherence bar and milestones. Exercise adherence feeds the Bones and muscles zone. A "due now" count in the top bar opens it.
+- **Downlink.** A compact plain-text brief for one crew member or the whole crew, with protocol steps and timestamps, 7-day trends, dose and adherence. Copy, print or save as PDF, size in KB and arrival time.
 - **Sources.** Every source, grouped, with where it is used, plus the About statement and the AI-use disclosure.
-- **Demo storylines.** The flight engineer's sleep debt turns sleep from watch (day 22) to action (day 27). The mission specialist runs 38.3 °C and 108 bpm on days 29-30.
+- **Demo storylines.** The flight engineer's sleep debt turns sleep from watch (day 22) to action (day 27), with missed sleep and check-in tasks. The mission specialist runs 38.3 °C and 108 bpm on days 29-30 and skips exercise on day 29.
+- **Demo path.** Select Arjun Sethi, open Triage, start the fever protocol, enter a re-measured temperature, then build the Downlink brief.
 - **Offline.** No backend, no auth, no network calls. Fonts and icons are bundled.
 - **State persists** (crew, environment, readings, logged entries) in `localStorage`.
 - **Accessibility.** Full keyboard navigation with a skip link and visible focus ring. Hit targets are at least 44 px. Reduced motion is respected. Status is always shown with an icon, a label and a colour; charts have a text summary and a data table.
@@ -62,8 +68,10 @@ src/
     overview/          Overview: status summary, readouts, radiation, hazards
     vitals/            Vitals: Recharts trends, log forms, imaging log
     bodymap/           Body Map: SVG figure, zone list, zone panel
+    triage/            Alert queue and protocol runner
+    routine/           Daily checklist, streaks, adherence
+    downlink/          Plain-text brief builder
     sources/           Sources and About page
-    upcoming/          Empty states for later-phase sections
   components/          Shared UI: StatusChip, PageHeader, SimulatedTag
   data/                Sources registry, thresholds, radiation, hazards, body
                        zones, research, environments, seeded generator
@@ -92,8 +100,8 @@ The domain layer (`types`, `data`, `lib`) has no React imports and is unit teste
 | Phase | Scope |
 | ----- | ----- |
 | **1. Foundation and mission shell** (done) | Scaffold, domain model, TODO thresholds, simulated dataset, store, shell, Overview, empty states |
-| **2. Sourced thresholds and trends** (this build) | Cited thresholds, radiation dose tracking, Vitals trends with logging, Body Map with NASA HRP risks, Sources page, demo storylines |
-| **3. Act on it** | Triage decision flows ending in act now, monitor or log; Routine as a daily countermeasure checklist with a streak |
+| **2. Sourced thresholds and trends** (done) | Cited thresholds, radiation dose tracking, Vitals trends with logging, Body Map with NASA HRP risks, Sources page, demo storylines |
+| **3. Act on it** (this build) | Alert queue and guided protocols with comm-delay escalation, environment hazard priorities, Routine with streaks, Downlink brief |
 | **4. Downlink and demo** | Compact health summary for the next comm window; delay-aware send queue; final polish and demo script |
 
 ## Use of AI tools

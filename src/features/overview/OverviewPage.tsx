@@ -2,6 +2,7 @@ import { PageHeader } from '../../components/PageHeader'
 import { SimulatedTag } from '../../components/SimulatedTag'
 import { useCrewHealth } from '../../lib/useCrewHealth'
 import { HazardPanel } from './HazardPanel'
+import { HazardPriorityPanel } from './HazardPriorityPanel'
 import { RadiationPanel } from './RadiationPanel'
 import { StatusSummary } from './StatusSummary'
 import { VitalReadout } from './VitalReadout'
@@ -42,6 +43,7 @@ export function OverviewPage() {
         </div>
 
         <div className="min-w-0 space-y-6">
+          <HazardPriorityPanel environmentId={environmentId} />
           <RadiationPanel dose={dose} environmentId={environmentId} missionDay={missionDay} />
           <HazardPanel />
         </div>

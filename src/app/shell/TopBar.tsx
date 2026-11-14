@@ -1,6 +1,11 @@
+import { ListChecks } from 'lucide-react'
+import { Link } from 'react-router'
 import { CREW } from '../../data/crew'
 import { ENVIRONMENTS, getEnvironment } from '../../data/environments'
+import { escalationFor } from '../../lib/escalation'
 import { latestMissionDay } from '../../lib/readings'
+import { dueTasks } from '../../lib/routine'
+import { useMissionHealth } from '../../lib/useCrewHealth'
 import { useVigilStore } from '../../lib/store'
 import type { EnvironmentId } from '../../types'
 import { CommDelay } from './CommDelay'
@@ -29,9 +34,12 @@ export function TopBar() {
   const setCrew = useVigilStore((s) => s.setCrew)
   const setEnvironment = useVigilStore((s) => s.setEnvironment)
   const environment = getEnvironment(environmentId)
+  const { routine, missionDay } = useMissionHealth()
+  const due = dueTasks(crewId, missionDay, routine).length
+  const esc = escalationFor(environmentId)
 
   return (
-    <header className="border-b border-line bg-panel">
+    <header className="border-b border-line bg-panel print:hidden">
       <div className="flex flex-wrap items-end gap-x-8 gap-y-4 px-4 py-3 sm:px-6">
         <Wordmark />
         <MissionClock missionDay={latestMissionDay(readings)} />
@@ -49,6 +57,23 @@ export function TopBar() {
             options={ENVIRONMENTS.map((e) => ({ value: e.id, label: e.name }))}
           />
           <CommDelay environment={environment} />
+          <div className="flex flex-col gap-1.5 self-stretch justify-end">
+            <span
+              data-testid="escalation-badge"
+              title={esc.lines[0]}
+              className="inline-flex h-7 items-center justify-center rounded-md border border-line-strong px-2 text-xs font-medium text-fg"
+            >
+              {esc.modeLabel}
+            </span>
+            <Link
+              to="/routine"
+              aria-label={`${due} routine ${due === 1 ? 'task' : 'tasks'} due now. Open Routine.`}
+              className="inline-flex h-11 items-center justify-center gap-1.5 rounded-md border border-line-strong px-2.5 text-sm text-fg hover:border-fg-faint"
+            >
+              <ListChecks aria-hidden className="size-4 text-accent" />
+              <span className="readout">{due}</span> due now
+            </Link>
+          </div>
         </div>
       </div>
     </header>

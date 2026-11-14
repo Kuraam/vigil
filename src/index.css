@@ -25,6 +25,14 @@
     border-radius: 4px;
   }
 
+  @media print {
+    html,
+    body {
+      background: #fff;
+      color: #000;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,

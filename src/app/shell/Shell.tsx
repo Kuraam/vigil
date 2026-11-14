@@ -34,7 +34,7 @@ export function Shell() {
           </AnimatePresence>
         </main>
       </div>
-      <footer className="sticky bottom-0 border-t border-line bg-panel px-4 py-2.5 text-sm text-fg-muted sm:px-6">
+      <footer className="print:hidden sticky bottom-0 border-t border-line bg-panel px-4 py-2.5 text-sm text-fg-muted sm:px-6">
         {DISCLAIMER}
       </footer>
     </div>
