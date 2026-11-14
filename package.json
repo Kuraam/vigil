@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "typecheck": "tsc -b",
     "lint": "oxlint",
-    "test": "vitest run",
+    "test": "node scripts/vitest.mjs run",
     "smoke": "node scripts/smoke.mjs"
   },
   "dependencies": {
