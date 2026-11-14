@@ -38,9 +38,9 @@ export function BodyMapPage() {
         aside={<SimulatedTag />}
       />
 
-      <div data-tour="body-map" className="grid gap-6 xl:grid-cols-[minmax(0,30rem)_minmax(0,1fr)]">
-        <div className="rounded-lg border border-line bg-panel p-4 sm:p-5">
-          <div className="grid gap-5 sm:grid-cols-[minmax(0,12rem)_minmax(0,1fr)] xl:grid-cols-[minmax(0,13rem)_minmax(0,1fr)]">
+      <div data-tour="body-map" className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,30rem)_minmax(0,1fr)]">
+        <div className="min-w-0 rounded-lg border border-line bg-panel p-4 sm:p-5">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-[minmax(0,12rem)_minmax(0,1fr)] xl:grid-cols-[minmax(0,13rem)_minmax(0,1fr)]">
             <div className="flex justify-center">
               <BodyFigure statuses={statuses} selected={selected} onSelect={select} />
             </div>

@@ -81,7 +81,10 @@ export function TriagePage() {
             Alert queue <span className="readout font-normal text-fg-muted">({alerts.length})</span>
           </h2>
           {alerts.length === 0 ? (
-            <p className="border-t border-line px-4 py-4 text-fg-muted sm:px-5">No watch or action readings right now.</p>
+            <p className="border-t border-line px-4 py-4 text-fg-muted sm:px-5">
+              No watch or action readings {view === 'crew' ? `for ${selected.crew?.name ?? 'this crew member'} ` : ''}right now.
+              {view === 'crew' && ' Choose Whole crew to see alerts for everyone.'}
+            </p>
           ) : (
             <ol className="divide-y divide-line border-t border-line">
               {alerts.map((a) => {

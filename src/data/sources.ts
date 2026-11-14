@@ -52,7 +52,7 @@ export const SOURCES = s({
     label: 'NASA HRP, Ongoing HRP Research',
     group: 'challenge',
     url: HRP_RESEARCH_URL,
-    usedBy: ['Research investigations data (used by Routine in phase 3)'],
+    usedBy: ['Routine: NASA research in progress card', 'Body Map: related NASA research per zone'],
   },
   csaRadiation: {
     label: 'CSA, Monitoring Radiation for Astronaut Health (2026)',
