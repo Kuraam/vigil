@@ -12,7 +12,8 @@ export const router = createBrowserRouter([
       { index: true, element: <Navigate to="/overview" replace /> },
       { path: 'overview', element: <OverviewPage /> },
       { path: 'body-map', element: <EmptyState section={UPCOMING.bodyMap} /> },
-      { path: 'vitals', element: <EmptyState section={UPCOMING.vitals} /> },
+      // Lazy: keeps Recharts out of the first bundle.
+      { path: 'vitals', lazy: async () => ({ Component: (await import('../features/vitals/VitalsPage')).VitalsPage }) },
       { path: 'triage', element: <EmptyState section={UPCOMING.triage} /> },
       { path: 'routine', element: <EmptyState section={UPCOMING.routine} /> },
       { path: 'downlink', element: <EmptyState section={UPCOMING.downlink} /> },

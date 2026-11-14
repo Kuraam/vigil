@@ -1,10 +1,17 @@
 import { VITAL_META } from '../data/vitals'
-import type { ImagingModality, ScalarVitalType, VitalReading } from '../types'
+import type { BodyZone, ImagingModality, ScalarVitalType, VitalReading } from '../types'
 
 export const MODALITY_LABEL: Record<ImagingModality, string> = {
   'ocular-ultrasound': 'Ocular ultrasound',
   'cardiac-ultrasound': 'Cardiac ultrasound',
   bone: 'Bone scan',
+}
+
+/** Each scan type belongs to one Body Map zone. */
+export const MODALITY_ZONE: Record<ImagingModality, BodyZone> = {
+  'ocular-ultrasound': 'eyes',
+  'cardiac-ultrasound': 'heart-circulation',
+  bone: 'bones-muscles',
 }
 
 /** Decimal places shown per scalar vital. */

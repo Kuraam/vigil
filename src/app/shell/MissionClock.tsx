@@ -1,23 +1,22 @@
 import { useEffect, useState } from 'react'
+import { MISSION_EPOCH } from '../../data/simulate'
 import { pad } from '../../lib/format'
-
-/** Simulated wall-clock at load: 07:42:00 on the latest mission day. */
-const START_OF_SHIFT_S = 7 * 3600 + 42 * 60
+import { missionNowMs } from '../../lib/missionTime'
 
 /**
  * Mission day + mission elapsed time (MET), formatted DDD:HH:MM:SS.
  * MET starts from the latest simulated day and ticks in real time.
  */
 export function MissionClock({ missionDay }: { missionDay: number }) {
-  const [loadedAt] = useState(() => Date.now())
-  const [now, setNow] = useState(loadedAt)
+  const [now, setNow] = useState(() => Date.now())
 
   useEffect(() => {
     const id = window.setInterval(() => setNow(Date.now()), 1000)
     return () => window.clearInterval(id)
   }, [])
 
-  const elapsed = Math.max(0, missionDay - 1) * 86_400 + START_OF_SHIFT_S + Math.floor((now - loadedAt) / 1000)
+  // Same clock that timestamps logged readings.
+  const elapsed = Math.max(0, Math.floor((missionNowMs(Math.max(1, missionDay), now) - MISSION_EPOCH) / 1000))
   const d = Math.floor(elapsed / 86_400)
   const h = Math.floor((elapsed % 86_400) / 3600)
   const m = Math.floor((elapsed % 3600) / 60)
