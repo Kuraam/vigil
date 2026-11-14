@@ -11,13 +11,7 @@ const SCALE_MAX_S = Math.max(...ENVIRONMENTS.map((e) => e.commDelay.maxSeconds))
  * 0 to 22.3 min scale so the distance from help is visible at a glance.
  */
 export function CommDelay({ environment }: { environment: Environment }) {
-  const { minSeconds, maxSeconds, source } = environment.commDelay
-  const fixed = minSeconds === maxSeconds
-  const text = fixed
-    ? formatDelay(maxSeconds)
-    : minSeconds === 0
-      ? `Up to ${formatDelay(maxSeconds)}`
-      : `${formatDelay(minSeconds)} to ${formatDelay(maxSeconds)}`
+  const { minSeconds, maxSeconds, source, label: text } = environment.commDelay
   const left = (minSeconds / SCALE_MAX_S) * 100
   // Keep at least a visible sliver for near-zero delays (low Earth orbit).
   const width = Math.max(((maxSeconds - minSeconds) / SCALE_MAX_S) * 100, 1.5)

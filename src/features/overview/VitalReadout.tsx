@@ -1,23 +1,11 @@
 import { StatusChip } from '../../components/StatusChip'
-import { formatDelta, formatReading } from '../../lib/format'
-import { REASON_LABEL } from '../../lib/status'
-import type { ImagingModality } from '../../types'
-import type { VitalRow } from './useCrewSummary'
+import { formatDelta, formatReading, MODALITY_LABEL, timeOf } from '../../lib/format'
+import type { VitalRow } from '../../lib/useCrewHealth'
 
-const MODALITY: Record<ImagingModality, string> = {
-  ultrasound: 'Ultrasound',
-  'fundus-photo': 'Eye fundus photo',
-  'optical-coherence': 'Optical coherence scan',
-  photo: 'Photo',
-}
-
-/** Time of day in mission time, e.g. "07:12". */
-const timeOf = (iso: string) => iso.slice(11, 16)
-
-/** One cell of the readout panel: label, big value, context line, status chip. */
+/** One cell of the Overview readout panel: label, big value, why it is rated that way. */
 export function VitalReadout({ row, className = '' }: { row: VitalRow; className?: string }) {
-  const { meta, reading, result, delta } = row
-  const shown = reading ? formatReading(reading) : null
+  const { meta, latest, result, delta } = row
+  const shown = latest ? formatReading(latest) : null
   const decimals = meta.type === 'coreTemperature' || meta.type === 'sleepHours' ? 1 : 0
 
   return (
@@ -29,12 +17,12 @@ export function VitalReadout({ row, className = '' }: { row: VitalRow; className
           </h3>
           <p className="text-sm text-fg-faint">{meta.method}</p>
         </div>
-        <StatusChip result={result} title={REASON_LABEL[result.reason]} />
+        <StatusChip result={result} title={result.detail} />
       </header>
 
-      {shown && reading ? (
+      {shown && latest ? (
         <>
-          {reading.kind === 'imaging' ? (
+          {latest.kind === 'imaging' ? (
             <p className="text-2xl leading-8 font-medium text-fg">{shown.value}</p>
           ) : (
             <p className="flex items-baseline gap-2">
@@ -42,22 +30,24 @@ export function VitalReadout({ row, className = '' }: { row: VitalRow; className
               <span className="text-base text-fg-muted">{shown.unit}</span>
             </p>
           )}
+          <p className="text-sm text-fg-muted">{result.detail}</p>
           <dl className="mt-auto flex flex-wrap gap-x-5 gap-y-1 text-sm">
             <div className="flex gap-1.5">
               <dt className="text-fg-faint">Taken</dt>
               <dd className="readout text-fg-muted">
-                Day {reading.missionDay}, {timeOf(reading.timestamp)}
+                Day {latest.missionDay}, {timeOf(latest.timestamp)}
+                {!latest.simulated && ' (logged)'}
               </dd>
             </div>
-            {reading.kind === 'imaging' ? (
+            {latest.kind === 'imaging' ? (
               <div className="flex gap-1.5">
                 <dt className="text-fg-faint">Scan</dt>
-                <dd className="text-fg-muted">{MODALITY[reading.modality]}</dd>
+                <dd className="text-fg-muted">{MODALITY_LABEL[latest.modality]}</dd>
               </div>
             ) : (
               delta !== null && (
                 <div className="flex gap-1.5">
-                  <dt className="text-fg-faint">vs 7-day mean{reading.kind === 'pressure' ? ' (systolic)' : ''}</dt>
+                  <dt className="text-fg-faint">vs 7-day mean{latest.kind === 'pressure' ? ' (systolic)' : ''}</dt>
                   <dd className="readout text-fg-muted">{formatDelta(delta, decimals)}</dd>
                 </div>
               )

@@ -2,10 +2,10 @@ import { STATUS_STYLE } from '../../components/statusStyle'
 import type { Status } from '../../types'
 
 const ROWS: { status: Status; label: string; meaning: string }[] = [
-  { status: 'nominal', label: 'Nominal', meaning: 'Inside its sourced range' },
+  { status: 'nominal', label: 'Nominal', meaning: 'Inside its nominal range' },
   { status: 'watch', label: 'Watch', meaning: 'Outside nominal, recheck soon' },
   { status: 'action', label: 'Action', meaning: 'Outside the watch range, act now' },
-  { status: 'nodata', label: 'No data', meaning: 'No reading, or not assessed yet' },
+  { status: 'nodata', label: 'No data or logged', meaning: 'No reading yet, or an imaging entry (never rated)' },
 ]
 
 /** Count of vitals in each status. Doubles as the legend for the status palette. */
