@@ -25,3 +25,17 @@ dist-ssr
 
 # VIGIL intermediates (screenshots, smoke-test output)
 .tmp/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Vercel local project link
+.vercel
+
+# More editor folders
+.fleet
+.zed
+*.code-workspace
+Thumbs.db

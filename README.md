@@ -35,9 +35,15 @@ npm run dev          # http://localhost:5173
 | `npm test`          | Unit tests for the domain layer (Vitest)                                     |
 | `npm run smoke`     | Opens every route in local Chrome or Edge and fails on any console error. Screenshots go to `.tmp/screens/` |
 
-`npm run smoke` uses an installed Chrome or Edge. Set `CHROME_PATH` if yours is somewhere unusual.
+`npm run smoke` uses an installed Chrome or Edge. Set `CHROME_PATH` if yours is somewhere unusual. By default it starts its own dev server. To check a running build instead, set `SMOKE_URL`:
 
-**Hosting note:** routes use the History API. A static host must serve `index.html` for unknown paths (`vite preview` already does).
+```bash
+npm run build && npm run preview                       # terminal 1
+SMOKE_URL=http://localhost:4173 npm run smoke          # terminal 2 (bash)
+$env:SMOKE_URL="http://localhost:4173"; npm run smoke  # terminal 2 (PowerShell)
+```
+
+**Hosting note:** routes use the History API, so a static host must serve `index.html` for every path. `vite preview` already does this, and `vercel.json` sets the same rewrite on Vercel.
 
 ## Folder structure
 

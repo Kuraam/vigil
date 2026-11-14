@@ -1,15 +1,20 @@
 /**
  * Route smoke check.
  *
- * Starts the Vite dev server, opens every route in a real browser, and fails
- * if any page logs a console error, throws, or is missing its heading.
+ * Opens every route in a real browser by direct URL and fails if the document
+ * returns an HTTP error, any page logs a console error or throws, or a page is
+ * missing its heading. Targets a fresh Vite dev server by default, or any
+ * running deployment when SMOKE_URL is set (preview, Vercel production).
  * Also checks the unknown-route fallback and the crew / environment selectors.
  * Screenshots go to .tmp/screens/ for visual review.
  *
  * Browser: uses CHROME_PATH if set, otherwise the standard Chrome / Edge install
  * locations on Windows, macOS and Linux (playwright-core does not download one).
  *
- * Usage: npm run smoke
+ * Usage:
+ *   npm run smoke                                   # dev server
+ *   SMOKE_URL=http://localhost:4173 npm run smoke   # npm run preview
+ *   SMOKE_URL=https://example.vercel.app npm run smoke
  */
 import { existsSync, mkdirSync } from 'node:fs'
 import { chromium } from 'playwright-core'
@@ -42,9 +47,12 @@ const ROUTES = [
 const OUT = '.tmp/screens'
 mkdirSync(OUT, { recursive: true })
 
-const server = await createServer({ server: { port: 5199, strictPort: true }, logLevel: 'error' })
-await server.listen()
-const base = 'http://localhost:5199'
+const target = process.env.SMOKE_URL?.replace(/\/+$/, '')
+const server = target ? null : await createServer({ server: { port: 5199, strictPort: true }, logLevel: 'error' })
+await server?.listen()
+const base = target ?? 'http://localhost:5199'
+console.log(`Smoke target: ${base}
+`)
 
 const browser = await chromium.launch({ executablePath })
 const failures = []
@@ -66,7 +74,8 @@ try {
   // 1. Every route renders its heading with no console errors.
   for (const { path, heading } of ROUTES) {
     const { page, errors } = await openPage()
-    await page.goto(base + path, { waitUntil: 'networkidle' })
+    const res = await page.goto(base + path, { waitUntil: 'networkidle' })
+    check(`${path} HTTP status`, (res?.status() ?? 0) < 400, String(res?.status()))
     const h1 = (await page.locator('h1').first().textContent())?.trim()
     const footer = await page.locator('footer').textContent()
     check(`${path} heading`, h1 === heading, `got "${h1}"`)
@@ -79,7 +88,8 @@ try {
   // 2. Root and unknown paths fall back to the Overview.
   for (const path of ['/', '/does-not-exist']) {
     const { page, errors } = await openPage()
-    await page.goto(base + path, { waitUntil: 'networkidle' })
+    const res = await page.goto(base + path, { waitUntil: 'networkidle' })
+    check(`${path} HTTP status`, (res?.status() ?? 0) < 400, String(res?.status()))
     // <Navigate> runs in an effect, so wait for the URL rather than sampling it once.
     const redirected = await page
       .waitForURL((u) => u.pathname === '/overview', { timeout: 5000 })
@@ -128,7 +138,7 @@ try {
   }
 } finally {
   await browser.close()
-  await server.close()
+  await server?.close()
 }
 
 console.log(failures.length ? `\n${failures.length} check(s) failed` : '\nAll smoke checks passed')
