@@ -10,7 +10,8 @@
     "typecheck": "tsc -b",
     "lint": "oxlint",
     "test": "node scripts/vitest.mjs run",
-    "smoke": "node scripts/smoke.mjs"
+    "smoke": "node scripts/smoke.mjs",
+    "sync:team": "node scripts/sync-team.mjs"
   },
   "dependencies": {
     "@fontsource/ibm-plex-mono": "^5.3.0",
@@ -36,5 +37,5 @@
     "vite": "^8.3.6",
     "vitest": "^5.1.0"
   },
-  "description": "VIGIL: Earth-independent crew health console for NASA Space Apps 2026 (Team Pandas). Developed with AI assistance (Claude, Anthropic), directed and reviewed by the team. Simulated data; not a medical device."
+  "description": "VIGIL: Earth-independent crew health console for NASA Space Apps 2026 (Pandanauts). Developed with AI assistance (Claude, Anthropic), directed and reviewed by the team. Simulated data; not a medical device."
 }

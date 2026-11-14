@@ -1,5 +1,6 @@
 import { ExternalLink } from 'lucide-react'
 import { PageHeader } from '../../components/PageHeader'
+import TEAM from '../../data/team.json'
 import { ALL_SOURCES, ENDORSEMENT_NOTE, SOURCE_GROUP_LABEL, SOURCES, type SourceGroup } from '../../data/sources'
 
 const ORDER: SourceGroup[] = ['challenge', 'nasa', 'agency', 'clinical', 'team']
@@ -23,7 +24,9 @@ export function SourcesPage() {
           About VIGIL
         </h2>
         <ul className="mt-2 space-y-1.5 text-fg-muted">
-          <li>Built by Team Pandas for NASA Space Apps 2026.</li>
+          <li>
+            Built by {TEAM.name} for {TEAM.event}: {TEAM.members.map((m) => `${m.name} (${m.role})`).join(', ')}.
+          </li>
           <li>
             Code written with the assistance of Claude (Anthropic), an AI coding assistant, directed and reviewed by the
             team.

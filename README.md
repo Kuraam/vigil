@@ -106,7 +106,7 @@ The domain layer (`types`, `data`, `lib`) has no React imports and is unit teste
 
 ## Use of AI tools
 
-VIGIL was built by Team Pandas for NASA Space Apps 2026. Code was written with the assistance of Claude (Anthropic), an AI coding assistant, directed and reviewed by the team. All crew data is simulated. VIGIL is not a medical device.
+VIGIL was built by Pandanauts for NASA Space Apps 2026. Code was written with the assistance of Claude (Anthropic), an AI coding assistant, directed and reviewed by the team. All crew data is simulated. VIGIL is not a medical device.
 
 ## Known quirk: Windows drive letter
 

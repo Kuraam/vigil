@@ -1,0 +1,11 @@
+{
+  "name": "Pandanauts",
+  "event": "NASA Space Apps Challenge 2026",
+  "challenge": "Create Health Monitoring Software for Astronauts on Space Missions",
+  "members": [
+    { "name": "Ahmad Kura Muhammad", "role": "Team Lead" },
+    { "name": "Muhammad Danjuma", "role": "[AI Engineer]" }
+  ],
+  "liveUrl": "https://vigil-pandas.vercel.app",
+  "repoUrl": "https://github.com/Kuraam/vigil"
+}
