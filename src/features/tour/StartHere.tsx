@@ -1,6 +1,14 @@
-import { Compass, X } from 'lucide-react'
+import { ArrowRight, Compass, X } from 'lucide-react'
+import { Link } from 'react-router'
 import { useState } from 'react'
 import { setStartDismissed, startDismissed, useTour } from './tourStore'
+
+const QUESTIONS = [
+  { q: 'What is my status?', to: '#readings-heading', where: 'Latest readings' },
+  { q: 'Why does it matter here?', to: '/body-map', where: 'Body Map' },
+  { q: 'What do I do now?', to: '/triage', where: 'Triage' },
+]
+const reducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false
 
 /** First-visit orientation for someone opening VIGIL cold. Dismissible; the tour stays available in the navigation. */
 export function StartHere() {
@@ -25,10 +33,28 @@ export function StartHere() {
         when Earth is too far away to ask.
       </p>
       <ol className="mt-3 grid gap-2 sm:grid-cols-3">
-        {['What is my status?', 'Why does it matter here?', 'What do I do now?'].map((q, i) => (
-          <li key={q} className="flex items-baseline gap-2 rounded-md border border-line bg-raised px-3 py-2">
-            <span className="readout text-sm text-fg-muted">{i + 1}</span>
-            <span className="font-medium text-fg">{q}</span>
+        {QUESTIONS.map(({ q, to, where }, i) => (
+          <li key={q}>
+            <Link
+              to={to}
+              onClick={(e) => {
+                // Same page: scroll to the readings instead of navigating.
+                if (to.startsWith('#')) {
+                  e.preventDefault()
+                  const h = document.getElementById(to.slice(1))
+                  h?.scrollIntoView({ block: 'start', behavior: reducedMotion() ? 'auto' : 'smooth' })
+                  h?.focus({ preventScroll: true })
+                }
+              }}
+              className="group flex h-full min-h-11 items-center gap-2 rounded-md border border-line bg-raised px-3 py-2 transition-colors hover:border-accent hover:bg-raised/70 focus-visible:border-accent"
+            >
+              <span className="readout text-sm text-fg-muted">{i + 1}</span>
+              <span className="min-w-0 flex-1">
+                <span className="block font-medium text-fg">{q}</span>
+                <span className="block text-sm text-fg-muted">{where}</span>
+              </span>
+              <ArrowRight aria-hidden className="size-4 shrink-0 text-fg-faint transition-transform group-hover:translate-x-0.5 group-hover:text-accent group-focus-visible:text-accent" />
+            </Link>
           </li>
         ))}
       </ol>

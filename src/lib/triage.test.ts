@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import { CREW } from '../data/crew'
+import { SOURCES } from '../data/sources'
 import { PROTOCOLS, MED_KIT_LINE, PROTOCOL_DISCLAIMER } from '../data/protocols'
 import { generateReadings, generateRoutine, SIM_DAYS } from '../data/simulate'
 import type { StatusResult } from '../types'
-import { buildAlerts, sortAlerts, type Alert } from './alerts'
+import { buildAlerts, crewAttention, crewTotals, sortAlerts, type Alert } from './alerts'
 import { AUTONOMOUS_LINE, escalationFor, GROUND_LINE, NOTIFY_LINE } from './escalation'
 import { computeCrewHealth } from './health'
 import { addMeasurement, answer, completeRun, findResumable, phaseDone, progress, redFlagRaised, runTimeline, startRun, toggleStep } from './protocolRun'
@@ -140,5 +141,40 @@ describe('phase 4 protocols', () => {
     const changed = [...readings, { id: 'v', crewId: 'crew-01', vital: 'visionCheck', kind: 'scalar', value: 1, missionDay: SIM_DAYS, timestamp: '2031-03-30T12:00:00.000Z', simulated: false } as const]
     const h = computeCrewHealth(changed, 'crew-01', 'spacecraft-transit', SIM_DAYS, ctx)
     expect(buildAlerts(h).find((a) => a.indicator === 'visionCheck')).toMatchObject({ protocolId: 'vision-change', result: { status: 'watch' } })
+  })
+})
+
+describe('alert sources and crew attention', () => {
+  it('the fever alert cites only the tier it crossed (CDC), never the hypothermia source', () => {
+    const fever = buildAlerts(health('crew-04')).find((a) => a.indicator === 'coreTemperature')!
+    expect(fever.crossedSources).toEqual([SOURCES.cdcFever.label])
+    expect(fever.crossedSources).not.toContain(SOURCES.hypothermia.label)
+    // The full threshold list still carries every source, for the Sources disclosure.
+    expect(fever.sources).toContain(SOURCES.hypothermia.label)
+  })
+
+  it('every alert has at least one crossed source drawn from its full source list', () => {
+    for (const c of CREW)
+      for (const a of buildAlerts(health(c.id), { speWarning: true })) {
+        expect(a.crossedSources.length).toBeGreaterThan(0)
+        for (const s of a.crossedSources) expect(a.sources).toContain(s)
+      }
+  })
+
+  it('crew attention puts the fever first for the mission specialist', () => {
+    const a = crewAttention(health('crew-04'))
+    expect(a.worst).toBe('action')
+    expect(a.top).toMatchObject({ indicator: 'coreTemperature', value: '38.3 °C' })
+    expect(a.action).toBeGreaterThanOrEqual(1)
+    expect(a.watch).toBeGreaterThanOrEqual(1) // heart rate 108
+  })
+
+  it('crew totals add up across the crew and take the worst status', () => {
+    const list = CREW.map((c) => crewAttention(health(c.id)))
+    const t = crewTotals(list)
+    expect(t.action).toBe(list.reduce((n, c) => n + c.action, 0))
+    expect(t.watch).toBe(list.reduce((n, c) => n + c.watch, 0))
+    expect(t.worst).toBe('action')
+    expect(crewTotals([])).toEqual({ action: 0, watch: 0, worst: 'nominal' })
   })
 })

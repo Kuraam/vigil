@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, type ReactNode } from 'react'
 import {
   CartesianGrid,
   ComposedChart,
@@ -93,7 +93,18 @@ export function TrendChart({
     )
   }
 
+  // Reference lines are named in a legend under the plot, so no label ever sits on the data line.
+  const legend: { key: string; label: string; swatch: ReactNode }[] = [
+    { key: 'series', label: isBp ? 'Systolic' : isHrv ? 'Daily RMSSD' : label, swatch: <Swatch stroke={c.fg} /> },
+    ...(isBp ? [{ key: 'dia', label: 'Diastolic', swatch: <Swatch stroke={c.fgMuted} dash="6 3" /> }] : []),
+    ...(isHrv ? [{ key: 'roll', label: '7-day mean (rated)', swatch: <Swatch stroke={c.fgMuted} dash="6 3" /> }] : []),
+    ...spec.bands.slice(0, 1).map((b) => ({ key: 'band', label: b.label.startsWith('Systolic') ? 'Nominal bands' : `${b.label} band`, swatch: <BandSwatch fill={c.nominal} /> })),
+    ...spec.rules.map((r) => ({ key: r.label, label: r.label, swatch: <Swatch stroke={r.tone === 'action' ? c.action : c.watch} dash="5 4" /> })),
+    ...(spec.baseline ? [{ key: 'base', label: spec.baseline.label, swatch: <Swatch stroke={c.fgMuted} dash="2 3" /> }] : []),
+  ]
+
   return (
+    <div>
     <div
       role="img"
       aria-label={`${label} trend over ${lastDay} mission days. ${spec.bands.map((b) => `${b.label} band ${fmt(b.from)} to ${fmt(b.to)}`).join('. ')}. ${spec.rules.map((r) => r.label).join('. ')}.`}
@@ -132,7 +143,6 @@ export function TrendChart({
               stroke={r.tone === 'action' ? c.action : c.watch}
               strokeDasharray="5 4"
               strokeWidth={1.5}
-              label={{ value: r.label, position: 'insideTopRight', fill: c.fgMuted, fontSize: 11 }}
               ifOverflow="hidden"
             />
           ))}
@@ -142,7 +152,6 @@ export function TrendChart({
               stroke={c.fgMuted}
               strokeDasharray="2 3"
               strokeWidth={1.5}
-              label={{ value: spec.baseline.label, position: 'insideBottomLeft', fill: c.fgMuted, fontSize: 11 }}
             />
           )}
           <Tooltip content={tooltip} cursor={{ stroke: c.lineStrong }} isAnimationActive={false} />
@@ -176,5 +185,30 @@ export function TrendChart({
         </ComposedChart>
       </ResponsiveContainer>
     </div>
+      <ul aria-hidden className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-fg-muted" data-testid="chart-legend">
+        {legend.map((l) => (
+          <li key={l.key} className="inline-flex items-center gap-1.5">
+            {l.swatch}
+            {l.label}
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+function Swatch({ stroke, dash }: { stroke: string; dash?: string }) {
+  return (
+    <svg width="22" height="8" className="shrink-0">
+      <line x1="1" y1="4" x2="21" y2="4" stroke={stroke} strokeWidth="2" strokeDasharray={dash} />
+    </svg>
+  )
+}
+
+function BandSwatch({ fill }: { fill: string }) {
+  return (
+    <svg width="14" height="10" className="shrink-0">
+      <rect width="14" height="10" rx="2" fill={fill} fillOpacity="0.22" />
+    </svg>
   )
 }

@@ -12,6 +12,8 @@ export interface StatusResult {
   reason: StatusReason
   /** Plain-English reason for the rating, e.g. "Below 60 bpm (team rule)". */
   detail: string
+  /** Sources of the threshold value(s) that decided this tier, e.g. the CDC fever definition for a fever. */
+  basis?: string[]
   /** True for a top-priority action, e.g. hypertensive crisis. */
   priority?: boolean
 }

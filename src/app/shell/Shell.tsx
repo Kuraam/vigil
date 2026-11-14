@@ -1,6 +1,9 @@
 import { AnimatePresence, motion } from 'motion/react'
+import { Suspense, useEffect } from 'react'
 import { useLocation, useOutlet } from 'react-router'
 import { TourPanel } from '../../features/tour/TourPanel'
+import { prefetchPages } from '../pages'
+import { PageSkeleton } from './PageSkeleton'
 import { SideNav } from './SideNav'
 import { TopBar } from './TopBar'
 
@@ -9,6 +12,8 @@ export const DISCLAIMER = 'Simulated data. Concept demonstration, not a medical 
 export function Shell() {
   const location = useLocation()
   const outlet = useOutlet()
+
+  useEffect(prefetchPages, [])
 
   return (
     <div className="flex min-h-dvh flex-col">
@@ -21,24 +26,26 @@ export function Shell() {
       <TopBar />
       <div className="flex flex-1 flex-col md:flex-row">
         <SideNav />
-        <main id="main" tabIndex={-1} className="min-w-0 flex-1 px-4 py-6 outline-none sm:px-6 lg:px-8">
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.div
-              key={location.pathname}
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.16, ease: [0.25, 1, 0.5, 1] }}
-            >
-              {outlet}
-            </motion.div>
-          </AnimatePresence>
+        <main id="main" tabIndex={-1} className="min-w-0 flex-1 px-4 pt-6 pb-10 outline-none sm:px-6 lg:px-8">
+          {/* Suspense lives inside the content area: the top bar, navigation and footer never blank out. */}
+          <Suspense fallback={<PageSkeleton path={location.pathname} />}>
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div
+                key={location.pathname}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.16, ease: [0.25, 1, 0.5, 1] }}
+              >
+                {outlet}
+              </motion.div>
+            </AnimatePresence>
+          </Suspense>
         </main>
       </div>
       <TourPanel />
-      <footer className="print:hidden sticky bottom-0 border-t border-line bg-panel px-4 py-2.5 text-sm text-fg-muted sm:px-6">
-        {DISCLAIMER}
-      </footer>
+      {/* In the page flow (not fixed), so it can never cover content on short screens. */}
+      <footer className="border-t border-line bg-panel px-4 py-2.5 text-sm text-fg-muted print:hidden sm:px-6">{DISCLAIMER}</footer>
     </div>
   )
 }

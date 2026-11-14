@@ -26,3 +26,12 @@ describe('reset demo data', () => {
     expect(after.briefQuestions).toBe('')
   })
 })
+
+describe('default crew member', () => {
+  it('opens on Arjun Sethi (the fever case) on first visit and after reset', () => {
+    expect(DEFAULT_CREW_ID).toBe('crew-04')
+    useVigilStore.getState().setCrew('crew-02')
+    useVigilStore.getState().resetSimulation()
+    expect(useVigilStore.getState().crewId).toBe('crew-04')
+  })
+})

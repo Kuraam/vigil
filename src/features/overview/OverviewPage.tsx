@@ -2,6 +2,8 @@ import { PageHeader } from '../../components/PageHeader'
 import { SimulatedTag } from '../../components/SimulatedTag'
 import { useCrewHealth } from '../../lib/useCrewHealth'
 import { StartHere } from '../tour/StartHere'
+import { AttentionNow } from './AttentionNow'
+import { CrewAtGlance } from './CrewAtGlance'
 import { HazardPanel } from './HazardPanel'
 import { HazardPriorityPanel } from './HazardPriorityPanel'
 import { RadiationPanel } from './RadiationPanel'
@@ -22,14 +24,18 @@ export function OverviewPage() {
         aside={<SimulatedTag>Simulated crew and readings</SimulatedTag>}
       />
 
+      <AttentionNow />
+
       <StartHere />
+
+      <CrewAtGlance />
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_26rem]">
         <div className="min-w-0 space-y-6">
           <StatusSummary counts={counts} />
 
           <section aria-labelledby="readings-heading" className="overflow-hidden rounded-lg border border-line">
-            <h2 id="readings-heading" className="bg-panel px-4 pt-4 pb-3 text-base font-semibold text-fg sm:px-5">
+            <h2 id="readings-heading" tabIndex={-1} className="scroll-mt-4 bg-panel outline-none px-4 pt-4 pb-3 text-base font-semibold text-fg sm:px-5">
               Latest readings
             </h2>
             <div className="grid grid-cols-1 gap-px border-t border-line bg-line md:grid-cols-2 2xl:grid-cols-3">

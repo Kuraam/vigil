@@ -5,6 +5,8 @@
   html {
     color-scheme: dark;
     background: var(--color-bg);
+    /* Reserve the scrollbar's space on every page, so the layout never shifts sideways. */
+    scrollbar-gutter: stable;
   }
 
   body {
@@ -40,6 +42,32 @@
       animation-duration: 0.01ms !important;
       transition-duration: 0.01ms !important;
     }
+  }
+}
+
+/* Loading placeholder: a slow breathing fade, held still for reduced motion. */
+.skeleton {
+  animation: skeleton-breathe 1.6s ease-in-out infinite;
+}
+@keyframes skeleton-breathe {
+  50% {
+    opacity: 0.55;
+  }
+}
+
+/* Body Map: the selected zone breathes its outline (disabled for reduced motion below). */
+.zone-pulse {
+  animation: zone-pulse 2.2s ease-in-out infinite;
+}
+@keyframes zone-pulse {
+  50% {
+    stroke-opacity: 0.45;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton,
+  .zone-pulse {
+    animation: none;
   }
 }
 

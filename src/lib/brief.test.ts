@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { CREW } from '../data/crew'
 import { generateReadings, generateRoutine, SIM_DAYS } from '../data/simulate'
 import { buildAlerts } from './alerts'
-import { briefSizeKb, buildBrief, trend7 } from './brief'
+import { briefContents, briefSizeKb, buildBrief, trend7 } from './brief'
 import { computeCrewHealth } from './health'
 import { answer, startRun, toggleStep } from './protocolRun'
 import { makeRoutineContext } from './routine'
@@ -68,5 +68,32 @@ describe('downlink brief', () => {
     expect(brief).not.toMatch(/<[a-z]/i)
     expect(briefSizeKb(brief)).toBeGreaterThan(0)
     expect(briefSizeKb(brief)).toBeLessThan(10)
+  })
+})
+
+describe('brief preview', () => {
+  it('counts match what the built brief contains', () => {
+    const alerts = buildAlerts(ms)
+    const c = briefContents([ms], alerts, [run], SIM_DAYS)
+    expect(c.action).toBe(alerts.filter((a) => a.result.status === 'action').length)
+    expect(c.watch).toBe(alerts.filter((a) => a.result.status === 'watch').length)
+    expect(c.runs).toBe(1)
+    expect(brief).toContain(`ACTIVE ALERTS (${c.action + c.watch})`)
+    const trendBlock = brief.split('7-DAY TRENDS (min / mean / max)\n')[1].split('\n\n')[0]
+    expect(trendBlock.split('\n').length).toBe(c.trends)
+  })
+
+  it('only counts runs and alerts for the crew in scope', () => {
+    const c = briefContents([ms], buildAlerts(ms), [{ ...run, crewId: 'crew-01' }], SIM_DAYS)
+    expect(c.runs).toBe(0)
+  })
+
+  it('the fever alert line cites the CDC definition, not hypothermia', () => {
+    const lines = brief.split('\n')
+    const i = lines.findIndex((l) => l.includes('[ACTION] Core temperature 38.3'))
+    expect(i).toBeGreaterThan(-1)
+    const src = lines[i + 1]
+    expect(src).toContain('CDC fever definition')
+    expect(src).not.toContain('hypothermia')
   })
 })

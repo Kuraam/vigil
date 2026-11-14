@@ -250,3 +250,17 @@ describe('exercise adherence', () => {
     expect(THRESHOLDS.exerciseAdherence.note).toContain('Reduced Cardiorespiratory and Musculoskeletal Fitness')
   })
 })
+
+describe('rating basis (the tier that was crossed)', () => {
+  it('a fever cites the CDC definition only', () => {
+    expect(rateTemperature(38.3).basis).toEqual([SOURCES.cdcFever.label])
+  })
+  it('hypothermia cites the hypothermia definition only', () => {
+    expect(rateTemperature(34.5).basis).toEqual([SOURCES.hypothermia.label])
+  })
+  it('a hypertensive crisis cites the AHA categories and stays priority', () => {
+    const r = rateBloodPressure({ systolic: 185, diastolic: 100 })
+    expect(r.basis).toEqual([SOURCES.aha2017.label])
+    expect(r.priority).toBe(true)
+  })
+})

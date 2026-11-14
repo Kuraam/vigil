@@ -17,7 +17,7 @@ export function CommDelay({ environment }: { environment: Environment }) {
   const width = Math.max(((maxSeconds - minSeconds) / SCALE_MAX_S) * 100, 1.5)
 
   return (
-    <div className="min-w-56" title={source}>
+    <div className="min-w-40 2xl:min-w-56" title={source}>
       <div className="field-label flex items-center gap-1.5">
         <RadioTower aria-hidden className="size-3.5" />
         Earth signal, one way

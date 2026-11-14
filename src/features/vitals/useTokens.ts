@@ -11,6 +11,8 @@ const FALLBACK = {
   nominal: '#3dd68c',
   watch: '#f5b544',
   action: '#ff6b6b',
+  nodata: '#8b95a1',
+  accent: '#5cc8e8',
 }
 
 /**
@@ -33,6 +35,8 @@ export function useTokens(): typeof FALLBACK {
       nominal: read('--color-nominal', FALLBACK.nominal),
       watch: read('--color-watch', FALLBACK.watch),
       action: read('--color-action', FALLBACK.action),
+      nodata: read('--color-nodata', FALLBACK.nodata),
+      accent: read('--color-accent', FALLBACK.accent),
     }
   }, [])
 }

@@ -1,7 +1,7 @@
 import { THRESHOLDS } from '../data/thresholds'
 import { RADIATION_LIMITS } from '../data/radiation'
 import { VITAL_META } from '../data/vitals'
-import type { ProtocolId, RatedVitalType, StatusResult, ThresholdValue } from '../types'
+import type { ProtocolId, RatedVitalType, Status, StatusResult, ThresholdValue } from '../types'
 import { formatReading } from './format'
 import type { CrewHealth } from './health'
 import { SEVERITY } from './status'
@@ -18,8 +18,10 @@ export interface Alert {
   result: StatusResult
   /** The reading as shown, e.g. "38.3 °C". */
   value: string
-  /** Sources of the thresholds behind this rating. */
+  /** Sources of every threshold for this indicator (shown behind a Sources disclosure). */
   sources: string[]
+  /** Sources of only the tier that was crossed, e.g. the CDC fever definition for a fever. */
+  crossedSources: string[]
   /** When the reading was taken (ISO). */
   at: string
   protocolId?: ProtocolId
@@ -70,8 +72,15 @@ function protocolFor(indicator: AlertIndicator, h: CrewHealth): ProtocolId | und
 export function buildAlerts(h: CrewHealth, opts: { speWarning?: boolean; now?: string } = {}): Alert[] {
   const crewName = h.crew?.name ?? h.crewId
   const out: Alert[] = []
-  const push = (a: Omit<Alert, 'key' | 'crewId' | 'crewName' | 'protocolId'>) =>
-    out.push({ ...a, key: `${h.crewId}:${a.indicator}`, crewId: h.crewId, crewName, protocolId: protocolFor(a.indicator, h) })
+  const push = (a: Omit<Alert, 'key' | 'crewId' | 'crewName' | 'protocolId' | 'crossedSources'>) =>
+    out.push({
+      ...a,
+      key: `${h.crewId}:${a.indicator}`,
+      crewId: h.crewId,
+      crewName,
+      crossedSources: a.result.basis?.length ? a.result.basis : a.sources,
+      protocolId: protocolFor(a.indicator, h),
+    })
 
   for (const row of h.rows) {
     if (row.meta.type === 'imagingLog' || !row.latest) continue
@@ -125,4 +134,29 @@ export function sortAlerts(alerts: Alert[]): Alert[] {
       Number(Boolean(b.result.priority)) - Number(Boolean(a.result.priority)) ||
       Date.parse(b.at) - Date.parse(a.at),
   )
+}
+
+/** What needs attention for one crew member: worst status, alert counts and the most urgent alert. */
+export interface CrewAttention {
+  crewId: string
+  worst: Status
+  action: number
+  watch: number
+  /** The most urgent alert, if any (sorted as in Triage). */
+  top: Alert | undefined
+}
+
+export function crewAttention(h: CrewHealth, opts: { speWarning?: boolean; now?: string } = {}): CrewAttention {
+  const alerts = sortAlerts(buildAlerts(h, opts))
+  const action = alerts.filter((a) => a.result.status === 'action').length
+  const watch = alerts.filter((a) => a.result.status === 'watch').length
+  const rated = h.rows.some((r) => r.result.status !== 'nodata')
+  return { crewId: h.crewId, worst: action ? 'action' : watch ? 'watch' : rated ? 'nominal' : 'nodata', action, watch, top: alerts[0] }
+}
+
+/** Crew-wide totals for the top bar indicator. */
+export function crewTotals(list: CrewAttention[]): { action: number; watch: number; worst: Status } {
+  const action = list.reduce((n, c) => n + c.action, 0)
+  const watch = list.reduce((n, c) => n + c.watch, 0)
+  return { action, watch, worst: action ? 'action' : watch ? 'watch' : 'nominal' }
 }

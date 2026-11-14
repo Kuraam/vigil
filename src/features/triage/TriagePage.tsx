@@ -1,5 +1,6 @@
 import { ArrowLeft, Sun } from 'lucide-react'
 import { useSearchParams } from 'react-router'
+import { Disclosure } from '../../components/Disclosure'
 import { PageHeader } from '../../components/PageHeader'
 import { SimulatedTag } from '../../components/SimulatedTag'
 import { StatusChip } from '../../components/StatusChip'
@@ -7,10 +8,17 @@ import { PROTOCOLS } from '../../data/protocols'
 import { buildAlerts, sortAlerts, type Alert } from '../../lib/alerts'
 import { escalationFor } from '../../lib/escalation'
 import { missionLabel, missionNowMs } from '../../lib/missionTime'
-import { findResumable, progress, startRun } from '../../lib/protocolRun'
+import { findResumable, progress } from '../../lib/protocolRun'
 import { useVigilStore } from '../../lib/store'
 import { useMissionHealth } from '../../lib/useCrewHealth'
 import { ProtocolRunner } from './ProtocolRunner'
+import { useOpenProtocol } from './useOpenProtocol'
+
+/** Left accent bar + faint tint by severity. The status chip still carries the icon and word. */
+const CARD_TONE: Partial<Record<string, string>> = {
+  action: 'border-l-action bg-action/[0.07]',
+  watch: 'border-l-watch bg-watch/[0.06]',
+}
 
 const segBtn = (on: boolean) =>
   `h-11 cursor-pointer px-4 text-sm transition-colors ${on ? 'bg-raised text-fg' : 'text-fg-muted hover:text-fg'}`
@@ -18,7 +26,6 @@ const segBtn = (on: boolean) =>
 export function TriagePage() {
   const { all, selected, environmentId, missionDay } = useMissionHealth()
   const runs = useVigilStore((s) => s.runs)
-  const saveRun = useVigilStore((s) => s.saveRun)
   const speWarning = useVigilStore((s) => s.speWarning)
   const setSpeWarning = useVigilStore((s) => s.setSpeWarning)
   const [params, setParams] = useSearchParams()
@@ -34,12 +41,10 @@ export function TriagePage() {
   const runHealth = run ? all[run.crewId] : undefined
   const runAlert = run ? sortAlerts(buildAlerts(all[run.crewId], { speWarning, now: nowIso })).find((a) => a.key === run.alertKey) : undefined
 
+  const openProtocol = useOpenProtocol()
   const open = (a: Alert) => {
-    if (!a.protocolId) return
-    const existing = findResumable(runs, a.crewId, a.protocolId)
-    const r = existing ?? startRun(a.protocolId, a.crewId, a.key, nowIso)
-    if (!existing) saveRun(r)
-    setParams({ ...(view === 'crew-all' ? { view } : {}), run: r.id })
+    const id = openProtocol(a)
+    if (id) setParams({ ...(view === 'crew-all' ? { view } : {}), run: id })
   }
   const close = () => setParams(view === 'crew-all' ? { view } : {})
   const esc = escalationFor(environmentId)
@@ -92,7 +97,13 @@ export function TriagePage() {
                 const p = resumable && a.protocolId ? progress(resumable, PROTOCOLS[a.protocolId]) : undefined
                 const isOpen = run?.alertKey === a.key
                 return (
-                  <li key={a.key} className={`px-4 py-3 sm:px-5 ${isOpen ? 'bg-raised' : ''}`} data-testid={`alert-${a.key}`}>
+                  <li
+                    key={a.key}
+                    data-testid={`alert-${a.key}`}
+                    className={`border-l-4 py-3 pr-4 pl-3 sm:pr-5 sm:pl-4 ${CARD_TONE[a.result.status] ?? 'border-l-transparent'} ${
+                      isOpen ? 'outline-2 -outline-offset-2 outline-accent' : ''
+                    }`}
+                  >
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <h3 className="font-medium text-fg">
@@ -104,22 +115,35 @@ export function TriagePage() {
                       <StatusChip result={a.result} title={a.result.detail} />
                     </div>
                     <p className="mt-1 text-sm text-fg-muted">Threshold: {a.result.detail}</p>
-                    <p className="text-xs text-fg-faint">Source: {a.sources.join('; ')}</p>
+                    <p className="text-xs text-fg-faint" data-testid="alert-source">
+                      Source: {a.crossedSources.join('; ')}
+                    </p>
                     {a.indicator !== 'radiation' && a.indicator !== 'spe' && a.indicator !== 'exerciseAdherence' && (
                       <p className="readout text-xs text-fg-faint">Reading taken {missionLabel(a.at)}</p>
                     )}
-                    <div className="mt-2">
+                    <div className="mt-2 flex flex-wrap items-start gap-x-2 gap-y-1">
                       {a.protocolId ? (
                         <button
                           type="button"
                           onClick={() => open(a)}
-                          className="h-11 cursor-pointer rounded-md border border-accent px-3 text-sm font-medium text-fg hover:bg-accent hover:text-accent-ink"
+                          className={`min-h-11 cursor-pointer rounded-md px-3 py-2 text-left text-sm font-medium ${
+                            a.result.status === 'action'
+                              ? 'bg-accent text-accent-ink hover:opacity-90'
+                              : 'border border-accent text-fg hover:bg-accent hover:text-accent-ink'
+                          }`}
                         >
                           {resumable ? `Resume protocol (${p?.done}/${p?.total})` : 'Start protocol'}: {PROTOCOLS[a.protocolId].title}
                         </button>
                       ) : (
                         <p className="text-sm text-fg-muted">No VIGIL protocol for this alert. {esc.lines[0]}</p>
                       )}
+                      <Disclosure label="Sources" icon={false}>
+                        <ul className="space-y-1 rounded-md border border-line bg-bg/60 p-3 text-xs text-fg-muted">
+                          {a.sources.map((src) => (
+                            <li key={src}>{src}</li>
+                          ))}
+                        </ul>
+                      </Disclosure>
                     </div>
                   </li>
                 )

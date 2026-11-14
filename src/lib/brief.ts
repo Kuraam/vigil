@@ -55,7 +55,7 @@ function crewSection(h: CrewHealth, alerts: Alert[], runs: ProtocolRun[], day: n
   if (mine.length === 0) out.push('  None')
   mine.forEach((a, i) => {
     out.push(`  ${i + 1}. [${TAG[a.result.status]}] ${a.label} ${a.value}. Threshold: ${a.result.detail}`)
-    out.push(`     Source: ${a.sources.join('; ')}`)
+    out.push(`     Source: ${a.crossedSources.join('; ')}`)
   })
 
   const myRuns = runs.filter((r) => r.crewId === h.crewId).sort((a, b) => Date.parse(a.startedAt) - Date.parse(b.startedAt))
@@ -123,4 +123,28 @@ export function buildBrief(input: BriefInput): string {
   for (const h of input.healths) lines.push(...crewSection(h, input.alerts, input.runs, input.missionDay, input.routine), '')
   lines.push('QUESTIONS FOR THE FLIGHT SURGEON', ...(input.questions.trim() ? input.questions.trim().split('\n').map((l) => `  ${l}`) : ['  None']), '', '-- end of brief --')
   return lines.join('\n')
+}
+
+/** Number of 7-day trend lines a crew section will carry (vitals with data in the window, plus the vision line). */
+export function trendCount(h: CrewHealth, day: number): number {
+  let n = 1 // vision self-check line is always present
+  for (const row of h.rows) {
+    const t = row.meta.type
+    if (t === 'imagingLog' || t === 'visionCheck') continue
+    if (trend7(row.history, day)) n++
+  }
+  return n
+}
+
+/** What a brief built from these inputs will include, for the preview before it is built. */
+export function briefContents(healths: CrewHealth[], alerts: Alert[], runs: ProtocolRun[], day: number) {
+  const ids = new Set(healths.map((h) => h.crewId))
+  const mine = alerts.filter((a) => ids.has(a.crewId))
+  return {
+    crew: healths.length,
+    action: mine.filter((a) => a.result.status === 'action').length,
+    watch: mine.filter((a) => a.result.status === 'watch').length,
+    runs: runs.filter((r) => ids.has(r.crewId)).length,
+    trends: Math.max(0, ...healths.map((h) => trendCount(h, day))),
+  }
 }

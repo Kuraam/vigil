@@ -50,7 +50,7 @@ try {
     await settle(page)
     await shot(page, 'body-map-arjun')
 
-    await page.getByRole('link', { name: 'Triage' }).click()
+    await page.getByRole('link', { name: 'Triage', exact: true }).click()
     await page.getByTestId('alert-crew-04:coreTemperature').waitFor()
     await settle(page)
     await shot(page, 'triage-fever')
@@ -74,7 +74,7 @@ try {
     await shot(page, 'protocol-running')
     await page.evaluate(() => (document.documentElement.style.zoom = ''))
 
-    await page.getByRole('link', { name: 'Downlink' }).click()
+    await page.getByRole('link', { name: 'Downlink', exact: true }).click()
     await page.getByLabel(/Open questions for the flight surgeon/).fill('Temperature back to 37.4 °C after rest. Should we repeat the check overnight?')
     await page.getByRole('button', { name: 'Build brief' }).click()
     await page.getByTestId('brief-text').waitFor()

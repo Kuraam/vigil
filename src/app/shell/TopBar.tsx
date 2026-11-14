@@ -9,6 +9,7 @@ import { useMissionHealth } from '../../lib/useCrewHealth'
 import { useVigilStore } from '../../lib/store'
 import type { EnvironmentId } from '../../types'
 import { CommDelay } from './CommDelay'
+import { CrewAlertIndicator } from './CrewAlertIndicator'
 import { MissionClock } from './MissionClock'
 import { SelectField } from './SelectField'
 
@@ -21,7 +22,7 @@ function Wordmark() {
       </svg>
       <div className="leading-tight">
         <div className="text-lg font-semibold tracking-[0.18em] text-fg">VIGIL</div>
-        <div className="text-xs text-fg-faint">Crew health console</div>
+        <div className="hidden text-xs text-fg-faint 2xl:block">Crew health console</div>
       </div>
     </div>
   )
@@ -40,23 +41,24 @@ export function TopBar() {
 
   return (
     <header className="border-b border-line bg-panel print:hidden">
-      <div className="flex flex-wrap items-end gap-x-8 gap-y-4 px-4 py-3 sm:px-6">
+      <div className="flex flex-wrap items-end gap-x-4 gap-y-4 px-4 py-3 sm:px-6 2xl:gap-x-8">
         <Wordmark />
         <MissionClock missionDay={latestMissionDay(readings)} />
-        <div className="flex flex-wrap items-end gap-x-4 gap-y-3 xl:ml-auto">
+        <div className="flex flex-wrap items-end gap-x-3 gap-y-3 xl:ml-auto 2xl:gap-x-4">
           <SelectField
             label="Crew member"
             value={crewId}
             onChange={setCrew}
             options={CREW.map((c) => ({ value: c.id, label: `${c.name} (${c.callSign})` }))}
           />
+          <CrewAlertIndicator />
           <SelectField
             label="Environment"
             value={environmentId}
             onChange={(v) => setEnvironment(v as EnvironmentId)}
             options={ENVIRONMENTS.map((e) => ({ value: e.id, label: e.name }))}
           />
-          <div data-tour="comm" className="flex flex-wrap items-end gap-x-4 gap-y-3">
+          <div data-tour="comm" className="flex flex-wrap items-end gap-x-3 gap-y-3 2xl:gap-x-4">
           <CommDelay environment={environment} />
           <div className="flex flex-col gap-1.5 self-stretch justify-end">
             <span

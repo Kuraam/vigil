@@ -11,7 +11,8 @@ export const CREW: CrewMember[] = [
   { id: 'crew-04', callSign: 'MS', name: 'Arjun Sethi', role: 'Mission Specialist', age: 41, simulated: true },
 ]
 
-export const DEFAULT_CREW_ID = CREW[0].id
+/** First visit and Reset open on the Mission Specialist, so the first screen shows the fever case. */
+export const DEFAULT_CREW_ID = 'crew-04'
 
 export function getCrew(id: string): CrewMember | undefined {
   return CREW.find((c) => c.id === id)

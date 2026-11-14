@@ -5,6 +5,7 @@ import type {
   Status,
   StatusResult,
   ThresholdConfig,
+  ThresholdValue,
   VitalReading,
   VitalType,
 } from '../types'
@@ -19,8 +20,16 @@ export function worse(a: StatusResult, b: StatusResult): StatusResult {
   return SEVERITY[b.status] > SEVERITY[a.status] ? b : a
 }
 
-const rated = (status: Status, detail: string, priority = false): StatusResult =>
-  priority ? { status, reason: 'rated', detail, priority } : { status, reason: 'rated', detail }
+/**
+ * A rated result. `basis` is the threshold value(s) that decided this tier;
+ * their sources become `result.basis`, so an alert cites only the tier it crossed.
+ */
+const rated = (status: Status, detail: string, basis: ThresholdValue[] = [], priority = false): StatusResult => {
+  const r: StatusResult = { status, reason: 'rated', detail }
+  if (basis.length) r.basis = [...new Set(basis.map((b) => b.source))]
+  if (priority) r.priority = true
+  return r
+}
 
 const NO_READING: StatusResult = { status: 'nodata', reason: 'no-reading', detail: 'No reading logged yet.' }
 
@@ -31,77 +40,77 @@ const NO_READING: StatusResult = { status: 'nodata', reason: 'no-reading', detai
 export function rateBloodPressure(r: Pick<PressureReading, 'systolic' | 'diastolic'>, t = THRESHOLDS.bloodPressure): StatusResult {
   const { systolic: s, diastolic: d } = r
   if (s >= t.crisisSystolicAtLeast.value || d >= t.crisisDiastolicAtLeast.value)
-    return rated('action', `Crisis range: ${t.crisisSystolicAtLeast.value}/${t.crisisDiastolicAtLeast.value} mmHg or higher. Top priority.`, true)
+    return rated('action', `Crisis range: ${t.crisisSystolicAtLeast.value}/${t.crisisDiastolicAtLeast.value} mmHg or higher. Top priority.`, [t.crisisSystolicAtLeast, t.crisisDiastolicAtLeast], true)
 
   const sys =
     s >= t.actionSystolicAtLeast.value
-      ? rated('action', `Systolic ${s} is ${t.actionSystolicAtLeast.value} mmHg or higher`)
+      ? rated('action', `Systolic ${s} is ${t.actionSystolicAtLeast.value} mmHg or higher`, [t.actionSystolicAtLeast])
       : s >= t.nominalSystolicBelow.value
-        ? rated('watch', `Systolic ${s} is ${t.nominalSystolicBelow.value}-${t.actionSystolicAtLeast.value - 1} mmHg`)
+        ? rated('watch', `Systolic ${s} is ${t.nominalSystolicBelow.value}-${t.actionSystolicAtLeast.value - 1} mmHg`, [t.nominalSystolicBelow])
         : s < t.lowSystolicBelow.value
-          ? rated('watch', `Low: systolic ${s} is below ${t.lowSystolicBelow.value} mmHg`)
-          : rated('nominal', `Below ${t.nominalSystolicBelow.value}/${t.nominalDiastolicBelow.value} mmHg`)
+          ? rated('watch', `Low: systolic ${s} is below ${t.lowSystolicBelow.value} mmHg`, [t.lowSystolicBelow])
+          : rated('nominal', `Below ${t.nominalSystolicBelow.value}/${t.nominalDiastolicBelow.value} mmHg`, [t.nominalSystolicBelow])
   const dia =
     d >= t.actionDiastolicAtLeast.value
-      ? rated('action', `Diastolic ${d} is ${t.actionDiastolicAtLeast.value} mmHg or higher`)
+      ? rated('action', `Diastolic ${d} is ${t.actionDiastolicAtLeast.value} mmHg or higher`, [t.actionDiastolicAtLeast])
       : d >= t.nominalDiastolicBelow.value
-        ? rated('watch', `Diastolic ${d} is ${t.nominalDiastolicBelow.value}-${t.actionDiastolicAtLeast.value - 1} mmHg`)
+        ? rated('watch', `Diastolic ${d} is ${t.nominalDiastolicBelow.value}-${t.actionDiastolicAtLeast.value - 1} mmHg`, [t.nominalDiastolicBelow])
         : d < t.lowDiastolicBelow.value
-          ? rated('watch', `Low: diastolic ${d} is below ${t.lowDiastolicBelow.value} mmHg`)
-          : rated('nominal', `Below ${t.nominalSystolicBelow.value}/${t.nominalDiastolicBelow.value} mmHg`)
+          ? rated('watch', `Low: diastolic ${d} is below ${t.lowDiastolicBelow.value} mmHg`, [t.lowDiastolicBelow])
+          : rated('nominal', `Below ${t.nominalSystolicBelow.value}/${t.nominalDiastolicBelow.value} mmHg`, [t.nominalSystolicBelow])
   return worse(sys, dia)
 }
 
 export function rateHeartRate(h: number, t = THRESHOLDS.heartRate): StatusResult {
-  if (h < t.actionBelow.value) return rated('action', `Below ${t.actionBelow.value} bpm (team rule)`)
-  if (h > t.actionAbove.value) return rated('action', `Above ${t.actionAbove.value} bpm (team rule)`)
-  if (h < t.nominalMin.value) return rated('watch', `Below ${t.nominalMin.value} bpm. ${t.note}`)
-  if (h > t.nominalMax.value) return rated('watch', `Above ${t.nominalMax.value} bpm (team rule)`)
-  return rated('nominal', `${t.nominalMin.value}-${t.nominalMax.value} bpm resting`)
+  if (h < t.actionBelow.value) return rated('action', `Below ${t.actionBelow.value} bpm (team rule)`, [t.actionBelow])
+  if (h > t.actionAbove.value) return rated('action', `Above ${t.actionAbove.value} bpm (team rule)`, [t.actionAbove])
+  if (h < t.nominalMin.value) return rated('watch', `Below ${t.nominalMin.value} bpm. ${t.note}`, [t.nominalMin])
+  if (h > t.nominalMax.value) return rated('watch', `Above ${t.nominalMax.value} bpm (team rule)`, [t.nominalMax, t.actionAbove])
+  return rated('nominal', `${t.nominalMin.value}-${t.nominalMax.value} bpm resting`, [t.nominalMin, t.nominalMax])
 }
 
 export function rateGlucose(g: number, t = THRESHOLDS.bloodGlucose): StatusResult {
-  if (g < t.actionBelow.value) return rated('action', `Below ${t.actionBelow.value} mg/dL: level 2 hypoglycaemia`)
-  if (g >= t.actionAtLeast.value) return rated('action', `${t.actionAtLeast.value} mg/dL or higher: confirm and consult ground`)
-  if (g < t.nominalMin.value) return rated('watch', `${t.actionBelow.value}-${t.nominalMin.value - 1} mg/dL: level 1 hypoglycaemia`)
-  if (g > t.nominalMax.value) return rated('watch', `${t.nominalMax.value + 1}-${t.actionAtLeast.value - 1} mg/dL fasting`)
-  return rated('nominal', `${t.nominalMin.value}-${t.nominalMax.value} mg/dL fasting`)
+  if (g < t.actionBelow.value) return rated('action', `Below ${t.actionBelow.value} mg/dL: level 2 hypoglycaemia`, [t.actionBelow])
+  if (g >= t.actionAtLeast.value) return rated('action', `${t.actionAtLeast.value} mg/dL or higher: confirm and consult ground`, [t.actionAtLeast])
+  if (g < t.nominalMin.value) return rated('watch', `${t.actionBelow.value}-${t.nominalMin.value - 1} mg/dL: level 1 hypoglycaemia`, [t.nominalMin])
+  if (g > t.nominalMax.value) return rated('watch', `${t.nominalMax.value + 1}-${t.actionAtLeast.value - 1} mg/dL fasting`, [t.nominalMax])
+  return rated('nominal', `${t.nominalMin.value}-${t.nominalMax.value} mg/dL fasting`, [t.nominalMin, t.nominalMax])
 }
 
 export function rateTemperature(c: number, t = THRESHOLDS.coreTemperature): StatusResult {
-  if (c >= t.feverAtLeast.value) return rated('action', `Fever: ${t.feverAtLeast.value.toFixed(1)} °C or higher`)
-  if (c < t.hypothermiaBelow.value) return rated('action', `Hypothermia: below ${t.hypothermiaBelow.value.toFixed(1)} °C`)
+  if (c >= t.feverAtLeast.value) return rated('action', `Fever: ${t.feverAtLeast.value.toFixed(1)} °C or higher`, [t.feverAtLeast])
+  if (c < t.hypothermiaBelow.value) return rated('action', `Hypothermia: below ${t.hypothermiaBelow.value.toFixed(1)} °C`, [t.hypothermiaBelow])
   if (c >= t.nominalMin.value && c <= t.nominalMax.value)
-    return rated('nominal', `${t.nominalMin.value.toFixed(1)}-${t.nominalMax.value.toFixed(1)} °C (team rule)`)
+    return rated('nominal', `${t.nominalMin.value.toFixed(1)}-${t.nominalMax.value.toFixed(1)} °C (team rule)`, [t.nominalMin, t.nominalMax])
   return c > t.nominalMax.value
-    ? rated('watch', `Above ${t.nominalMax.value.toFixed(1)} °C, below fever (team rule)`)
-    : rated('watch', `Below ${t.nominalMin.value.toFixed(1)} °C (team rule)`)
+    ? rated('watch', `Above ${t.nominalMax.value.toFixed(1)} °C, below fever (team rule)`, [t.nominalMax])
+    : rated('watch', `Below ${t.nominalMin.value.toFixed(1)} °C (team rule)`, [t.nominalMin])
 }
 
 export function rateCognitive(c: number, t = THRESHOLDS.cognitiveReadiness): StatusResult {
-  if (c >= t.nominalAtLeast.value) return rated('nominal', `${t.nominalAtLeast.value} or higher (team rule)`)
-  if (c >= t.watchAtLeast.value) return rated('watch', `${t.watchAtLeast.value}-${t.nominalAtLeast.value - 1} (team rule)`)
-  return rated('action', `Below ${t.watchAtLeast.value} (team rule)`)
+  if (c >= t.nominalAtLeast.value) return rated('nominal', `${t.nominalAtLeast.value} or higher (team rule)`, [t.nominalAtLeast])
+  if (c >= t.watchAtLeast.value) return rated('watch', `${t.watchAtLeast.value}-${t.nominalAtLeast.value - 1} (team rule)`, [t.nominalAtLeast])
+  return rated('action', `Below ${t.watchAtLeast.value} (team rule)`, [t.watchAtLeast])
 }
 
 export function rateSpo2(v: number, t = THRESHOLDS.spo2): StatusResult {
-  if (v >= t.nominalAtLeast.value) return rated('nominal', `${t.nominalAtLeast.value}% or higher`)
-  if (v >= t.watchAtLeast.value) return rated('watch', `${t.watchAtLeast.value}-${t.nominalAtLeast.value - 1}%`)
-  return rated('action', `Below ${t.watchAtLeast.value}%: low saturation emergency`)
+  if (v >= t.nominalAtLeast.value) return rated('nominal', `${t.nominalAtLeast.value}% or higher`, [t.nominalAtLeast])
+  if (v >= t.watchAtLeast.value) return rated('watch', `${t.watchAtLeast.value}-${t.nominalAtLeast.value - 1}%`, [t.nominalAtLeast])
+  return rated('action', `Below ${t.watchAtLeast.value}%: low saturation emergency`, [t.watchAtLeast])
 }
 
 export function rateVision(answer: number, t = THRESHOLDS.visionCheck): StatusResult {
   return answer >= t.changeIsWatch.value
-    ? rated('watch', 'Change in vision reported (team rule). Log an ocular ultrasound.')
+    ? rated('watch', 'Change in vision reported (team rule). Log an ocular ultrasound.', [t.changeIsWatch])
     : rated('nominal', 'No change in vision reported')
 }
 
 /** Exercise sessions completed in the last 7 days (team rule). */
 export function rateExercise(sessions: number, t = THRESHOLDS.exerciseAdherence): StatusResult {
   const w = t.windowDays.value
-  if (sessions >= t.nominalAtLeast.value) return rated('nominal', `${sessions} of ${w} days exercised (team rule)`)
-  if (sessions >= t.watchAtLeast.value) return rated('watch', `${sessions} of ${w} days exercised, below ${t.nominalAtLeast.value} (team rule)`)
-  return rated('action', `${sessions} of ${w} days exercised, below ${t.watchAtLeast.value} (team rule)`)
+  if (sessions >= t.nominalAtLeast.value) return rated('nominal', `${sessions} of ${w} days exercised (team rule)`, [t.nominalAtLeast])
+  if (sessions >= t.watchAtLeast.value) return rated('watch', `${sessions} of ${w} days exercised, below ${t.nominalAtLeast.value} (team rule)`, [t.nominalAtLeast])
+  return rated('action', `${sessions} of ${w} days exercised, below ${t.watchAtLeast.value} (team rule)`, [t.watchAtLeast])
 }
 
 // ---------------------------------------------------------------------------
@@ -130,22 +139,22 @@ export function rateSleep(history: VitalReading[], t = THRESHOLDS.sleepHours): S
   if (!latest) return NO_READING
   const nights = t.actionConsecutiveNights.value
   if (lastNConsecutive(points, nights, (v) => v < t.watchAtLeast.value))
-    return rated('action', `Under ${t.watchAtLeast.value} h on ${nights} consecutive nights (team rule)`)
-  if (latest.value >= t.nominalAtLeast.value) return rated('nominal', `${t.nominalAtLeast.value} h or more`)
-  if (latest.value >= t.watchAtLeast.value) return rated('watch', `${t.watchAtLeast.value}-${t.nominalAtLeast.value - 0.1} h`)
-  return rated('watch', `Under ${t.watchAtLeast.value} h. Action if it continues for ${nights} nights.`)
+    return rated('action', `Under ${t.watchAtLeast.value} h on ${nights} consecutive nights (team rule)`, [t.watchAtLeast, t.actionConsecutiveNights])
+  if (latest.value >= t.nominalAtLeast.value) return rated('nominal', `${t.nominalAtLeast.value} h or more`, [t.nominalAtLeast])
+  if (latest.value >= t.watchAtLeast.value) return rated('watch', `${t.watchAtLeast.value}-${t.nominalAtLeast.value - 0.1} h`, [t.nominalAtLeast])
+  return rated('watch', `Under ${t.watchAtLeast.value} h. Action if it continues for ${nights} nights.`, [t.watchAtLeast])
 }
 
 export function rateMood(history: VitalReading[], t = THRESHOLDS.mood): StatusResult {
   const points = dailyValues(history)
   const latest = points.at(-1)
   if (!latest) return NO_READING
-  if (latest.value <= t.actionAtMost.value) return rated('action', `Self-rated ${t.actionAtMost.value} or lower (team rule)`)
+  if (latest.value <= t.actionAtMost.value) return rated('action', `Self-rated ${t.actionAtMost.value} or lower (team rule)`, [t.actionAtMost])
   const days = t.declineDays.value
   if (lastNConsecutive(points, days, (v, i, all) => i === 0 || v < all[i - 1]))
-    return rated('action', `Declined ${days} days in a row (team rule)`)
-  if (latest.value >= t.nominalAtLeast.value) return rated('nominal', `${t.nominalAtLeast.value}-5 (team rule)`)
-  return rated('watch', `Self-rated ${latest.value} (team rule)`)
+    return rated('action', `Declined ${days} days in a row (team rule)`, [t.declineDays])
+  if (latest.value >= t.nominalAtLeast.value) return rated('nominal', `${t.nominalAtLeast.value}-5 (team rule)`, [t.nominalAtLeast])
+  return rated('watch', `Self-rated ${latest.value} (team rule)`, [t.nominalAtLeast])
 }
 
 export interface HrvSummary {
@@ -173,10 +182,10 @@ export function rateHrv(history: VitalReading[], t = THRESHOLDS.hrv): StatusResu
     return { status: 'nodata', reason: 'insufficient-history', detail: `Needs readings from mission days 1-${t.baselineDays.value} for a baseline.` }
   const pct = Math.round(ratio * 100)
   if (ratio < t.actionBelowFraction.value)
-    return rated('action', `${t.windowDays.value}-day mean is ${pct}% of baseline, below ${t.actionBelowFraction.value * 100}% (team rule)`)
+    return rated('action', `${t.windowDays.value}-day mean is ${pct}% of baseline, below ${t.actionBelowFraction.value * 100}% (team rule)`, [t.actionBelowFraction])
   if (ratio < t.watchBelowFraction.value)
-    return rated('watch', `${t.windowDays.value}-day mean is ${pct}% of baseline, below ${t.watchBelowFraction.value * 100}% (team rule)`)
-  return rated('nominal', `${t.windowDays.value}-day mean is ${pct}% of baseline`)
+    return rated('watch', `${t.windowDays.value}-day mean is ${pct}% of baseline, below ${t.watchBelowFraction.value * 100}% (team rule)`, [t.watchBelowFraction])
+  return rated('nominal', `${t.windowDays.value}-day mean is ${pct}% of baseline`, [t.watchBelowFraction])
 }
 
 const mean = (xs: number[]) => xs.reduce((a, b) => a + b, 0) / xs.length

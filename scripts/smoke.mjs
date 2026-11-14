@@ -36,7 +36,7 @@ if (!executablePath) {
 }
 
 const ROUTES = [
-  { path: '/overview', heading: 'Ines Varga' },
+  { path: '/overview', heading: 'Arjun Sethi' },
   { path: '/body-map', heading: 'Body Map' },
   { path: '/vitals', heading: 'Vitals' },
   { path: '/triage', heading: 'Triage' },
@@ -102,7 +102,7 @@ try {
       .then(() => true)
       .catch(() => false)
     check(`${path} redirects to /overview`, redirected, page.url())
-    check(`${path} renders Overview`, (await page.locator('h1').first().textContent())?.trim() === 'Ines Varga')
+    check(`${path} renders Overview`, (await page.locator('h1').first().textContent())?.trim() === 'Arjun Sethi')
     check(`${path} console clean`, errors.length === 0, errors.join(' | '))
     await page.close()
   }
@@ -162,11 +162,11 @@ try {
     await input.press('Enter')
     check('valid entry confirms save', (await card.locator('[role=status]').textContent())?.includes('130 bpm') ?? false)
     check('Vitals chip updates to Action', (await card.locator('header span[title]').first().textContent())?.trim() === 'Action')
-    await page.getByRole('link', { name: 'Overview' }).click()
+    await page.getByRole('link', { name: 'Overview', exact: true }).click()
     await page.waitForURL('**/overview')
     const hr = page.locator('article', { has: page.getByRole('heading', { name: 'Heart rate', exact: true }) })
     check('Overview shows the logged reading', (await hr.textContent())?.includes('130') ?? false)
-    await page.getByRole('link', { name: 'Body Map' }).click()
+    await page.getByRole('link', { name: 'Body Map', exact: true }).click()
     await page.waitForURL('**/body-map')
     const heartBtn = page.getByRole('button', { name: /Heart and circulation/ })
     check('Body Map heart zone rolls up to Action', (await heartBtn.textContent())?.includes('Action') ?? false, await heartBtn.textContent())
@@ -205,7 +205,7 @@ try {
     const { page, errors } = await openPage()
     await page.goto(base + '/overview', { waitUntil: 'networkidle' })
     await page.getByLabel('Crew member', { exact: true }).selectOption('crew-04')
-    await page.getByRole('link', { name: 'Triage' }).click()
+    await page.getByRole('link', { name: 'Triage', exact: true }).click()
     await page.waitForURL('**/triage')
     const fever = page.getByTestId('alert-crew-04:coreTemperature')
     await fever.waitFor({ timeout: 5000 }).catch(() => {})
@@ -239,14 +239,14 @@ try {
     await hr.getByRole('button', { name: /Start protocol/ }).click()
     await page.locator('#runner-heading', { hasText: 'High heart rate' }).waitFor({ timeout: 5000 })
     await page.locator('article', { has: page.locator('#runner-heading') }).getByLabel('Hydrate.', { exact: true }).check()
-    await page.getByRole('link', { name: 'Overview' }).click()
+    await page.getByRole('link', { name: 'Overview', exact: true }).click()
     await page.waitForURL('**/overview')
-    await page.getByRole('link', { name: 'Triage' }).click()
+    await page.getByRole('link', { name: 'Triage', exact: true }).click()
     await page.waitForURL('**/triage')
     const resume = page.getByTestId('alert-crew-04:heartRate').getByRole('button', { name: /Resume protocol \(1\// })
     check('E2E: unfinished protocol can be resumed', (await resume.count()) === 1)
 
-    await page.getByRole('link', { name: 'Downlink' }).click()
+    await page.getByRole('link', { name: 'Downlink', exact: true }).click()
     await page.waitForURL('**/downlink')
     await page.getByRole('button', { name: 'Build brief' }).click()
     const brief = (await page.getByTestId('brief-text').textContent()) ?? ''
@@ -334,25 +334,25 @@ try {
   {
     const { page, errors } = await openPage()
     await page.goto(base + '/vitals', { waitUntil: 'networkidle' })
-    await page.getByLabel('Crew member', { exact: true }).selectOption('crew-04')
+    await page.getByLabel('Crew member', { exact: true }).selectOption('crew-02')
     const card = page.locator('article', { has: page.getByRole('heading', { name: 'Heart rate', exact: true }) })
     await card.getByRole('button', { name: 'Log heart rate reading' }).click()
     await card.getByLabel('Value (bpm)').fill('150')
     await card.getByLabel('Value (bpm)').press('Enter')
-    await page.getByRole('link', { name: 'Sources' }).click()
+    await page.getByRole('link', { name: 'Sources', exact: true }).click()
     await page.waitForURL('**/sources')
     await page.getByRole('button', { name: 'Reset demo data' }).click()
     check('reset asks for confirmation', await page.getByRole('dialog', { name: 'Reset demo data?' }).isVisible())
     await page.getByRole('dialog').getByRole('button', { name: 'Cancel' }).click()
-    check('cancel keeps changes', (await page.getByLabel('Crew member', { exact: true }).inputValue()) === 'crew-04')
+    check('cancel keeps changes', (await page.getByLabel('Crew member', { exact: true }).inputValue()) === 'crew-02')
     await page.getByRole('button', { name: 'Reset demo data' }).click()
     await page.getByRole('dialog').getByRole('button', { name: 'Reset', exact: true }).click()
-    check('reset restores default crew', (await page.getByLabel('Crew member', { exact: true }).inputValue()) === 'crew-01')
+    check('reset restores default crew (Arjun Sethi)', (await page.getByLabel('Crew member', { exact: true }).inputValue()) === 'crew-04')
     check('reset confirms in a status message', (await page.getByTestId('reset-demo').textContent())?.includes('Demo data reset') ?? false)
-    await page.getByLabel('Crew member', { exact: true }).selectOption('crew-04')
-    await page.getByRole('link', { name: 'Overview' }).click()
+    await page.getByLabel('Crew member', { exact: true }).selectOption('crew-02')
+    await page.getByRole('link', { name: 'Overview', exact: true }).click()
     const hr = page.locator('article', { has: page.getByRole('heading', { name: 'Heart rate', exact: true }) })
-    check('reset removed the logged reading (back to seeded 108)', ((await hr.textContent()) ?? '').includes('108'))
+    check('reset removed the logged reading', !((await hr.textContent()) ?? '').includes('150'), await hr.textContent())
     check('reset console clean', errors.length === 0, errors.join(' | '))
     await page.evaluate(() => localStorage.clear())
     await page.close()
@@ -371,6 +371,128 @@ try {
       )
     }
     check('first focusable element is the skip link', focused === 'Skip to content', `got "${focused.slice(0, 40)}"`)
+    await page.close()
+  }
+
+  // UI POLISH: crew attention, no blank screens, Body Map fit and hover, alert sources, Start here, Downlink preview.
+  {
+    const { page, errors } = await openPage()
+    await page.goto(base + '/overview', { waitUntil: 'networkidle' })
+    // First visit opens on the fever case, with the Attention now strip.
+    check('first visit selects Arjun Sethi', (await page.getByLabel('Crew member', { exact: true }).inputValue()) === 'crew-04')
+    const strip = page.getByTestId('attention-now')
+    const stripText = (await strip.textContent()) ?? ''
+    check('Attention now shows the fever and its threshold', stripText.includes('38.3') && stripText.includes('Fever: 38.0 °C or higher') && stripText.includes('CDC fever definition'), stripText.slice(0, 80))
+    // Top bar crew indicator: counts, worst-status icon and words, opens whole-crew Triage.
+    const indicator = page.getByTestId('crew-alerts')
+    const indText = ((await indicator.textContent()) ?? '').replace(/\s+/g, ' ')
+    check('top bar crew indicator shows Action and Watch counts', /Crew: \d+ Action · \d+ Watch/.test(indText), indText)
+    // Crew at a glance: four cards; choosing one selects that crew member.
+    const cards = page.getByTestId('crew-glance').getByRole('button')
+    check('Crew at a glance shows 4 crew cards', (await cards.count()) === 4)
+    check('Arjun card names the top issue', ((await cards.nth(3).textContent()) ?? '').includes('Core temperature 38.3'))
+    await cards.nth(2).click()
+    check('crew card selects that crew member', (await page.locator('h1').textContent())?.trim() === 'Mei Tanaka-Ross')
+    check('Attention now follows the selection (sleep debt)', ((await page.getByTestId('attention-now').textContent()) ?? '').includes('Sleep'))
+    await cards.nth(3).click()
+    await indicator.click()
+    await page.waitForURL('**/triage?view=crew-all')
+    check('crew indicator opens Triage in whole-crew view', (await page.getByRole('button', { name: 'Whole crew' }).getAttribute('aria-pressed')) === 'true')
+    // Triage cards: crossed-tier source only, full sources behind a disclosure, filled button for Action.
+    const fever = page.getByTestId('alert-crew-04:coreTemperature')
+    const src = (await fever.getByTestId('alert-source').textContent()) ?? ''
+    check('fever alert cites the CDC fever definition only', src.includes('CDC fever definition') && !src.includes('hypothermia'), src)
+    check('full sources are hidden until opened', !(await fever.getByText('clinical definition of hypothermia').isVisible()))
+    await fever.getByRole('button', { name: 'Sources' }).click()
+    check('Sources disclosure lists every threshold source', await fever.getByText('clinical definition of hypothermia').isVisible())
+    const cls = (await fever.getByRole('button', { name: /Start protocol/ }).getAttribute('class')) ?? ''
+    check('Action alert has a filled Start protocol button', cls.includes('bg-accent'))
+    check('Action alert card has the red accent bar', ((await fever.getAttribute('class')) ?? '').includes('border-l-action'))
+    // Attention now → Start protocol opens the fever runner.
+    await page.getByRole('link', { name: 'Overview', exact: true }).click()
+    await page.waitForURL('**/overview')
+    await page.getByTestId('attention-now').getByRole('button', { name: /Start protocol/ }).click()
+    await page.waitForURL(/\/triage\?run=/)
+    await page.locator('#runner-heading').waitFor({ timeout: 5000 }).catch(() => {})
+    check('Attention now opens the fever protocol in Triage', (await page.locator('#runner-heading').textContent())?.trim() === 'Fever / high core temperature')
+    // Downlink: a checklist with live counts before the brief is built.
+    await page.getByRole('link', { name: 'Downlink', exact: true }).click()
+    await page.waitForURL('**/downlink')
+    const preview = (await page.getByTestId('brief-preview').textContent()) ?? ''
+    check('Downlink preview lists alerts, runs and trends', /1 Action alert, 2 Watch/.test(preview) && /1 protocol run/.test(preview) && /7-day trends for \d+ vitals/.test(preview), preview.slice(0, 120))
+    check('Downlink preview shows the arrival estimate', /Arrives at Earth in approximately up to 22\.3 min/.test((await page.getByTestId('brief-eta').textContent()) ?? ''))
+    await page.getByRole('button', { name: 'Build brief' }).click()
+    check('preview gives way to the built brief', (await page.getByTestId('brief-preview').count()) === 0 && (await page.getByTestId('brief-text').count()) === 1)
+    // Footer is in the page flow, never covering content.
+    check('footer is not fixed or sticky', (await page.locator('footer').evaluate((el) => getComputedStyle(el).position)) === 'static')
+    check('scrollbar gutter is reserved', (await page.evaluate(() => getComputedStyle(document.documentElement).scrollbarGutter)).includes('stable'))
+    check('polish console clean', errors.length === 0, errors.join(' | '))
+    await page.evaluate(() => localStorage.clear())
+    await page.close()
+  }
+
+  // Start here tiles are links.
+  {
+    const { page, errors } = await openPage()
+    await page.goto(base + '/overview', { waitUntil: 'networkidle' })
+    const tiles = page.getByTestId('start-here').getByRole('link')
+    check('Start here has 3 question links', (await tiles.count()) === 3)
+    await tiles.nth(1).click()
+    await page.waitForURL('**/body-map')
+    check('"Why does it matter here?" opens Body Map', await page.locator('h1', { hasText: 'Body Map' }).waitFor({ timeout: 5000 }).then(() => true, () => false))
+    await page.goBack()
+    await page.locator('h1', { hasText: 'Arjun Sethi' }).waitFor({ timeout: 5000 })
+    await page.getByTestId('start-here').getByRole('link').nth(2).click()
+    await page.waitForURL('**/triage')
+    check('"What do I do now?" opens Triage', await page.locator('h1', { hasText: 'Triage' }).waitFor({ timeout: 5000 }).then(() => true, () => false))
+    await page.goBack()
+    await page.locator('h1', { hasText: 'Arjun Sethi' }).waitFor({ timeout: 5000 })
+    await page.getByTestId('start-here').getByRole('link').nth(0).click()
+    check('"What is my status?" focuses the readings', (await page.evaluate(() => document.activeElement?.id)) === 'readings-heading')
+    check('start-here console clean', errors.length === 0, errors.join(' | '))
+    await page.evaluate(() => localStorage.clear())
+    await page.close()
+  }
+
+  // No blank screens: while a page chunk loads, the shell stays and the content area shows a skeleton.
+  {
+    const { page, errors } = await openPage()
+    let release
+    const gate = new Promise((r) => (release = r))
+    await page.route(/VitalsPage/, async (route) => {
+      await gate
+      await route.continue()
+    })
+    await page.goto(base + '/vitals', { waitUntil: 'domcontentloaded' })
+    await page.getByTestId('page-skeleton').waitFor({ timeout: 8000 }).catch(() => {})
+    check('shell stays rendered while a page loads', (await page.getByRole('banner').count()) === 1 && (await page.getByRole('navigation', { name: 'Primary' }).count()) === 1 && (await page.locator('footer').count()) === 1)
+    check('content area shows a skeleton while loading', (await page.getByTestId('page-skeleton').count()) === 1)
+    release()
+    await page.locator('h1', { hasText: 'Vitals' }).waitFor({ timeout: 8000 }).catch(() => {})
+    check('page replaces the skeleton when loaded', (await page.getByTestId('page-skeleton').count()) === 0 && (await page.locator('h1').textContent())?.trim() === 'Vitals')
+    const legend = (await page.locator('article', { has: page.getByRole('heading', { name: 'Heart rate', exact: true }) }).getByTestId('chart-legend').textContent()) ?? ''
+    check('chart reference lines are named in a legend', legend.includes('Personal baseline') && legend.includes('Action above 120'), legend)
+    check('skeleton console clean', errors.length === 0, errors.join(' | '))
+    await page.close()
+  }
+
+  // Body Map figure fits the screen and names the zone under the pointer or focus.
+  for (const viewport of [{ width: 1366, height: 645 }, { width: 1440, height: 900 }]) {
+    const { page, errors } = await openPage(viewport)
+    await page.goto(base + '/body-map', { waitUntil: 'networkidle' })
+    const box = await page.locator('svg[viewBox="0 0 200 460"]').boundingBox()
+    check(`Body Map figure fully visible at ${viewport.width}x${viewport.height}`, !!box && box.y >= 0 && box.y + box.height <= viewport.height, JSON.stringify(box))
+    if (viewport.width === 1366) {
+      await page.getByRole('button', { name: /^Lungs/ }).hover()
+      check('hovering a zone names it beside the figure', ((await page.getByTestId('zone-hover-label').textContent()) ?? '').includes('Lungs'))
+      await page.getByRole('button', { name: /^Eyes/ }).focus()
+      check('focusing a zone names it beside the figure', ((await page.getByTestId('zone-hover-label').textContent()) ?? '').includes('Eyes'))
+      await page.locator('[data-zone="gut-nutrition"]').click()
+      await page.locator('#zone-heading', { hasText: 'Gut and nutrition' }).waitFor({ timeout: 5000 }).catch(() => {})
+      check('clicking a figure zone selects it', (await page.locator('#zone-heading').textContent())?.trim() === 'Gut and nutrition')
+      check('selected zone pulses', (await page.locator('g[data-zone="gut-nutrition"]').getAttribute('class'))?.includes('zone-pulse') ?? false)
+    }
+    check(`body map fit console clean ${viewport.width}`, errors.length === 0, errors.join(' | '))
     await page.close()
   }
 

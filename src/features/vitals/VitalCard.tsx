@@ -11,18 +11,6 @@ import { LogReadingForm } from './LogReadingForm'
 import { TrendChart } from './TrendChart'
 import { VisionCheckForm, VisionStrip } from './VisionCheck'
 
-/** Legend swatch: identity by line style + label, never colour alone. */
-function Key({ dash, muted, label }: { dash?: string; muted?: boolean; label: string }) {
-  return (
-    <span className="inline-flex items-center gap-1.5">
-      <svg aria-hidden width="20" height="6" className={muted ? 'text-fg-muted' : 'text-fg'}>
-        <line x1="0" y1="3" x2="20" y2="3" stroke="currentColor" strokeWidth="2" strokeDasharray={dash} />
-      </svg>
-      {label}
-    </span>
-  )
-}
-
 /** One vital: rating, latest value, 30-day trend, sources, data table and a log form. */
 export function VitalCard({ row }: { row: VitalRow }) {
   const vital = row.meta.type as RatedVitalType
@@ -55,23 +43,6 @@ export function VitalCard({ row }: { row: VitalRow }) {
         </div>
       )}
       <p className="text-sm text-fg-muted">{result.detail}</p>
-
-      {(vital === 'bloodPressure' || vital === 'hrv') && (
-        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-fg-muted" aria-hidden>
-          {vital === 'bloodPressure' ? (
-            <>
-              <Key label="Systolic" />
-              <Key label="Diastolic" dash="6 3" muted />
-            </>
-          ) : (
-            <>
-              <Key label="Daily RMSSD" />
-              <Key label="7-day mean (rated)" dash="6 3" muted />
-              <Key label="Baseline, days 1-14" dash="2 3" muted />
-            </>
-          )}
-        </div>
-      )}
 
       {vital === 'visionCheck' ? (
         <VisionStrip history={history} />

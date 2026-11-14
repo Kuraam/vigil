@@ -1,6 +1,8 @@
 import { useMemo } from 'react'
 import { CREW } from '../data/crew'
+import { crewAttention, crewTotals } from './alerts'
 import { computeCrewHealth, type CrewHealth } from './health'
+import { missionNowMs } from './missionTime'
 import { latestMissionDay } from './readings'
 import { makeRoutineContext } from './routine'
 import { useVigilStore } from './store'
@@ -29,4 +31,15 @@ export function useMissionHealth() {
 export function useCrewHealth() {
   const { selected, environmentId, missionDay } = useMissionHealth()
   return { ...selected, environmentId, missionDay }
+}
+
+/** Alert summary for every crew member, in crew order (top bar indicator, Overview crew cards). */
+export function useCrewAttention() {
+  const { all, missionDay } = useMissionHealth()
+  const speWarning = useVigilStore((s) => s.speWarning)
+  return useMemo(() => {
+    const now = new Date(missionNowMs(missionDay)).toISOString()
+    const list = CREW_IDS.map((id) => crewAttention(all[id], { speWarning, now }))
+    return { list, totals: crewTotals(list) }
+  }, [all, missionDay, speWarning])
 }

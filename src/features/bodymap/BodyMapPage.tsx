@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router'
 import { PageHeader } from '../../components/PageHeader'
 import { SimulatedTag } from '../../components/SimulatedTag'
@@ -6,7 +6,7 @@ import { STATUS_STYLE, chipLabel } from '../../components/statusStyle'
 import { BODY_ZONES, getZone, isBodyZone } from '../../data/bodyZones'
 import { useCrewHealth } from '../../lib/useCrewHealth'
 import { rollUpZone } from '../../lib/zones'
-import type { BodyZone, Status, StatusResult } from '../../types'
+import { BODY_ZONE_LABEL, type BodyZone, type Status, type StatusResult } from '../../types'
 import { BodyFigure } from './BodyFigure'
 import { ZonePanel } from './ZonePanel'
 
@@ -16,6 +16,7 @@ export function BodyMapPage() {
   const raw = params.get('zone')
   const selected: BodyZone = isBodyZone(raw) ? raw : 'heart-circulation'
   const select = (z: BodyZone) => setParams({ zone: z }, { replace: true })
+  const [hovered, setHovered] = useState<BodyZone | null>(null)
 
   const zoneStatus = useMemo(() => {
     const out = {} as Record<BodyZone, StatusResult>
@@ -38,11 +39,11 @@ export function BodyMapPage() {
         aside={<SimulatedTag />}
       />
 
-      <div data-tour="body-map" className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,30rem)_minmax(0,1fr)]">
+      <div data-tour="body-map" className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,32rem)_minmax(0,1fr)]">
         <div className="min-w-0 rounded-lg border border-line bg-panel p-4 sm:p-5">
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-[minmax(0,12rem)_minmax(0,1fr)] xl:grid-cols-[minmax(0,13rem)_minmax(0,1fr)]">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-[auto_minmax(0,1fr)]">
             <div className="flex justify-center">
-              <BodyFigure statuses={statuses} selected={selected} onSelect={select} />
+              <BodyFigure statuses={statuses} selected={selected} hovered={hovered} onSelect={select} onHover={setHovered} names={BODY_ZONE_LABEL} />
             </div>
             <div>
               <h2 id="zones-heading" className="mb-2 text-base font-semibold text-fg">
@@ -59,6 +60,10 @@ export function BodyMapPage() {
                         type="button"
                         aria-pressed={isSel}
                         onClick={() => select(z.id)}
+                        onMouseEnter={() => setHovered(z.id)}
+                        onMouseLeave={() => setHovered(null)}
+                        onFocus={() => setHovered(z.id)}
+                        onBlur={() => setHovered(null)}
                         className={`flex min-h-11 w-full cursor-pointer items-center gap-2.5 rounded-md border px-3 py-1.5 text-left transition-colors ${
                           isSel ? 'border-accent bg-raised' : 'border-line hover:border-line-strong hover:bg-raised/60'
                         }`}

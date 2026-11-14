@@ -24,7 +24,8 @@ export function MissionClock({ missionDay }: { missionDay: number }) {
 
   return (
     <div className="flex items-end gap-5">
-      <div>
+      {/* Below 2xl the MET (which starts with the day count) stands alone, so the top bar fits one row. */}
+      <div className="hidden 2xl:block">
         <div className="field-label">Mission day</div>
         <div className="readout text-2xl leading-7 font-medium text-fg">{pad(missionDay, 3)}</div>
       </div>

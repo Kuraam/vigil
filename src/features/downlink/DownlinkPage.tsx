@@ -1,10 +1,11 @@
-import { Copy, Printer, SatelliteDish } from 'lucide-react'
+import { Check, Copy, Printer, SatelliteDish } from 'lucide-react'
 import { useId, useState } from 'react'
 import { PageHeader } from '../../components/PageHeader'
 import { SimulatedTag } from '../../components/SimulatedTag'
 import { getEnvironment } from '../../data/environments'
 import { buildAlerts } from '../../lib/alerts'
-import { briefSizeKb, buildBrief } from '../../lib/brief'
+import { briefContents, briefSizeKb, buildBrief } from '../../lib/brief'
+import { escalationFor } from '../../lib/escalation'
 import { missionNowMs } from '../../lib/missionTime'
 import { useVigilStore } from '../../lib/store'
 import { useMissionHealth } from '../../lib/useCrewHealth'
@@ -22,6 +23,15 @@ export function DownlinkPage() {
   const [copied, setCopied] = useState('')
   const qid = useId()
   const env = getEnvironment(environmentId)
+
+  const scoped = scope === 'all' ? Object.values(all) : [selected]
+  const nowIso = new Date(missionNowMs(missionDay)).toISOString()
+  const preview = briefContents(
+    scoped,
+    scoped.flatMap((h) => buildAlerts(h, { speWarning, now: nowIso })),
+    runs,
+    missionDay,
+  )
 
   const build = () => {
     const healths = scope === 'all' ? Object.values(all) : [selected]
@@ -87,6 +97,33 @@ export function DownlinkPage() {
           Build brief
         </button>
       </section>
+
+      {!brief && (
+        <section aria-labelledby="includes-heading" data-testid="brief-preview" className="rounded-lg border border-line bg-panel p-4 sm:p-5">
+          <h2 id="includes-heading" className="text-base font-semibold text-fg">
+            What this brief will include
+          </h2>
+          <ul className="mt-3 grid gap-2 sm:grid-cols-2">
+            {[
+              `Current status of every vital for ${scope === 'all' ? `all ${preview.crew} crew members` : (selected.crew?.name ?? 'the selected crew member')}`,
+              `${preview.action} Action alert${preview.action === 1 ? '' : 's'}, ${preview.watch} Watch, each with its threshold and source`,
+              `${preview.runs} protocol run${preview.runs === 1 ? '' : 's'} with timestamped steps`,
+              `7-day trends for ${preview.trends} vitals`,
+              'Radiation dose and routine adherence',
+              questions.trim() ? 'Your open questions for the flight surgeon' : 'Open questions for the flight surgeon (none written yet)',
+            ].map((line) => (
+              <li key={line} className="flex items-start gap-2 text-fg">
+                <Check aria-hidden className="mt-0.5 size-4 shrink-0 text-accent" strokeWidth={2.5} />
+                <span>{line}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-4 border-t border-line pt-3 text-sm text-fg-muted" data-testid="brief-eta">
+            Arrives at Earth in approximately <span className="readout text-fg">{env.commDelay.label.toLowerCase()}</span> from {env.name}. Earth&apos;s reply
+            takes <span className="readout text-fg">{escalationFor(environmentId).replyEta}</span> for the round trip.
+          </p>
+        </section>
+      )}
 
       {brief && (
         <section aria-labelledby="brief-heading" className="rounded-lg border border-line bg-panel print:border-0">
