@@ -20,10 +20,10 @@ describe('formatReading', () => {
     expect(formatReading(r)).toEqual({ value: '93', unit: 'mg/dL' })
   })
 
-  it('formats imaging entries by zone with no NaN', () => {
-    const r: ImagingReading = { ...base, kind: 'imaging', vital: 'imagingLog', zone: 'head-eyes', modality: 'ultrasound', note: 'n' }
+  it('formats imaging entries by scan type with no NaN', () => {
+    const r: ImagingReading = { ...base, kind: 'imaging', vital: 'imagingLog', zone: 'eyes', modality: 'ocular-ultrasound', finding: 'n' }
     const out = formatReading(r)
-    expect(out.value).toBe('Head & eyes')
+    expect(out.value).toBe('Ocular ultrasound')
     expect(out.value + out.unit).not.toContain('NaN')
   })
 })

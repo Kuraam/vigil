@@ -11,7 +11,5 @@ export interface Hazard {
   name: string
   /** One-sentence plain-language summary for a non-physician crew member. */
   summary: string
-  /** Body systems / vitals this hazard most plausibly affects (used from Phase 2). */
-  watchFor: string[]
   source: string
 }

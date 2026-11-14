@@ -18,10 +18,11 @@ export const STATUS_STYLE: Record<Status, StatusStyle> = {
 }
 
 /**
- * Chip text. A grey chip distinguishes "nothing measured" from
- * "measured but not rated yet", so a value next to it never looks contradicted.
+ * Chip text. Grey chips say why there is no rating: nothing measured, not
+ * enough history yet, or an imaging entry (logged, never rated).
  */
-export function chipLabel({ status, reason }: StatusResult): string {
-  if (status === 'nodata') return reason === 'threshold-pending' ? 'Not assessed' : 'No data'
+export function chipLabel({ status, reason, priority }: StatusResult): string {
+  if (status === 'nodata') return { logged: 'Logged', 'insufficient-history': 'Not assessed', 'no-reading': 'No data', rated: 'No data' }[reason]
+  if (priority) return 'Action: priority'
   return { nominal: 'Nominal', watch: 'Watch', action: 'Action' }[status]
 }

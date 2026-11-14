@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { DEFAULT_CREW_ID } from '../data/crew'
 import { DEFAULT_ENVIRONMENT_ID } from '../data/environments'
-import { SIM_SEED } from '../data/simulate'
+import { SIM_SEED, SIM_VERSION } from '../data/simulate'
 import { sanitizePersisted } from './persistence'
 
 describe('sanitizePersisted', () => {
@@ -28,10 +28,15 @@ describe('sanitizePersisted', () => {
     })
   })
 
-  it('keeps readings only when they came from the current seed', () => {
+  it('keeps readings only when they came from the current seed and generator version', () => {
     const readings = [{ id: 'x' }]
-    expect(sanitizePersisted({ simSeed: SIM_SEED, readings }).readings).toBe(readings)
-    expect(sanitizePersisted({ simSeed: SIM_SEED - 1, readings }).readings).toBeUndefined()
-    expect(sanitizePersisted({ simSeed: SIM_SEED, readings: 'bad' }).readings).toBeUndefined()
+    const ok = { simSeed: SIM_SEED, simVersion: SIM_VERSION }
+    expect(sanitizePersisted({ ...ok, readings }).readings).toBe(readings)
+    expect(sanitizePersisted({ ...ok, simSeed: SIM_SEED - 1, readings }).readings).toBeUndefined()
+    expect(sanitizePersisted({ ...ok, readings: 'bad' }).readings).toBeUndefined()
+  })
+
+  it('discards Phase 1 saved data (no generator version)', () => {
+    expect(sanitizePersisted({ simSeed: SIM_SEED, readings: [{ id: 'x' }] }).readings).toBeUndefined()
   })
 })

@@ -1,44 +1,36 @@
 import type { Environment, EnvironmentId } from '../types'
+import { SOURCES } from './sources'
 
 /*
- * One-way signal delay to Earth = light travel time over the current distance.
- * Speed of light: 299,792 km/s.
- *   Earth-Mars closest approach  ~54.6 million km -> ~182 s  (~3.0 min)
- *   Earth-Mars superior conjunction ~401 million km -> ~1338 s (~22.3 min)
- *   Low Earth orbit via geostationary relay ~2 x 35,786 km -> ~0.24 s (light time only)
- * Pressurized Rover and Surface Base are assumed to be on Mars for this concept.
- * These are physics figures, not medical thresholds.
+ * Mission profile: a Mars mission. Orbital Station is the ISS-class reference.
+ * One-way signal delay = light travel time.
+ *   Earth-Mars: ~3 to ~22 min (NASA Mars Relay Network); 182-1338 s.
+ *   Low Earth orbit: under 1 s (light time via geostationary relay is about 0.24 s).
  */
-const MARS_SOURCE = 'Light travel time over Earth–Mars distance of 54.6–401 million km (NASA Mars Fact Sheet)'
-
 export const ENVIRONMENTS: Environment[] = [
   {
     id: 'spacecraft-transit',
     name: 'Spacecraft Transit',
-    context: 'Earth–Mars cruise',
-    commDelay: { minSeconds: 0, maxSeconds: 1338, source: `${MARS_SOURCE}. Grows from near zero at departure.` },
+    context: 'Earth–Mars transit',
+    commDelay: { minSeconds: 0, maxSeconds: 1338, label: 'Up to 22.3 min', source: SOURCES.marsRelay.label },
   },
   {
     id: 'orbital-station',
     name: 'Orbital Station',
-    context: 'Low Earth orbit',
-    commDelay: {
-      minSeconds: 0.24,
-      maxSeconds: 0.24,
-      source: 'Light travel time via geostationary relay (about 2 × 35,786 km). Excludes ground processing.',
-    },
+    context: 'Low Earth orbit, ISS-class',
+    commDelay: { minSeconds: 0.24, maxSeconds: 0.24, label: 'Under 1 s', source: SOURCES.lightTime.label },
   },
   {
     id: 'pressurized-rover',
     name: 'Pressurized Rover',
-    context: 'Mars surface traverse',
-    commDelay: { minSeconds: 182, maxSeconds: 1338, source: MARS_SOURCE },
+    context: 'Mars surface',
+    commDelay: { minSeconds: 182, maxSeconds: 1338, label: '3.0 to 22.3 min', source: SOURCES.marsRelay.label },
   },
   {
     id: 'surface-base',
     name: 'Surface Base',
-    context: 'Mars surface habitat',
-    commDelay: { minSeconds: 182, maxSeconds: 1338, source: MARS_SOURCE },
+    context: 'Mars surface',
+    commDelay: { minSeconds: 182, maxSeconds: 1338, label: '3.0 to 22.3 min', source: SOURCES.marsRelay.label },
   },
 ]
 

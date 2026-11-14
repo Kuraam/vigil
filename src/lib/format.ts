@@ -1,6 +1,11 @@
 import { VITAL_META } from '../data/vitals'
-import { BODY_ZONE_LABEL } from '../types'
-import type { ScalarVitalType, VitalReading } from '../types'
+import type { ImagingModality, ScalarVitalType, VitalReading } from '../types'
+
+export const MODALITY_LABEL: Record<ImagingModality, string> = {
+  'ocular-ultrasound': 'Ocular ultrasound',
+  'cardiac-ultrasound': 'Cardiac ultrasound',
+  bone: 'Bone scan',
+}
 
 /** Decimal places shown per scalar vital. */
 const DECIMALS: Record<ScalarVitalType, number> = {
@@ -19,7 +24,7 @@ export function formatReading(r: VitalReading): { value: string; unit: string } 
     case 'pressure':
       return { value: `${r.systolic}/${r.diastolic}`, unit: 'mmHg' }
     case 'imaging':
-      return { value: BODY_ZONE_LABEL[r.zone], unit: '' }
+      return { value: MODALITY_LABEL[r.modality], unit: '' }
     case 'scalar':
       return { value: formatNumber(r.value, DECIMALS[r.vital]), unit: VITAL_META[r.vital].unit }
   }
@@ -46,3 +51,6 @@ export function formatDelay(seconds: number): string {
   if (seconds < 60) return `${seconds < 1 ? seconds.toFixed(2) : seconds.toFixed(0)} s`
   return `${(seconds / 60).toFixed(1)} min`
 }
+
+/** Time of day in mission time, e.g. "07:12". */
+export const timeOf = (iso: string) => iso.slice(11, 16)

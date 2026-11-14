@@ -8,7 +8,7 @@ export const CREW: CrewMember[] = [
   { id: 'crew-01', callSign: 'CDR', name: 'Ines Varga', role: 'Commander', age: 44, simulated: true },
   { id: 'crew-02', callSign: 'PLT', name: 'Kofi Adeyemi', role: 'Pilot', age: 38, simulated: true },
   { id: 'crew-03', callSign: 'FE', name: 'Mei Tanaka-Ross', role: 'Flight Engineer', age: 35, simulated: true },
-  { id: 'crew-04', callSign: 'CMO', name: 'Arjun Sethi', role: 'Crew Medical Officer', age: 41, simulated: true },
+  { id: 'crew-04', callSign: 'MS', name: 'Arjun Sethi', role: 'Mission Specialist', age: 41, simulated: true },
 ]
 
 export const DEFAULT_CREW_ID = CREW[0].id

@@ -10,6 +10,8 @@ export interface CommDelay {
   minSeconds: number
   /** Maximum one-way delay in seconds. */
   maxSeconds: number
+  /** Display text, e.g. "Under 1 s" or "3.0 to 22.3 min". */
+  label: string
   /** Where the figure comes from (physics or published reference). */
   source: string
 }

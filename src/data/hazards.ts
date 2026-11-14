@@ -1,44 +1,48 @@
 import type { Hazard } from '../types'
+import { SOURCES } from './sources'
 
-const HRP_SOURCE = 'NASA Human Research Program, “5 Hazards of Human Spaceflight”'
-
-/** The five NASA HRP hazards, summarised in plain language for a non-physician crew member. */
+/**
+ * The five NASA HRP hazards. One plain-English line each, taken from the
+ * official challenge resource (NASA HRP, 5 Hazards of Human Spaceflight).
+ */
 export const HAZARDS: Hazard[] = [
   {
     id: 'space-radiation',
     name: 'Space Radiation',
-    summary:
-      'Beyond Earth’s magnetic field, galactic cosmic rays and solar particle events raise long-term cancer risk and may affect the nervous system.',
-    watchFor: ['Fatigue', 'Nausea', 'Cognitive readiness', 'Skin'],
-    source: HRP_SOURCE,
+    summary: 'Invisible, and considered one of the most hazardous aspects of spaceflight.',
+    source: SOURCES.hrpHazards.label,
   },
   {
     id: 'isolation-confinement',
     name: 'Isolation and Confinement',
     summary:
-      'Months in a small crew and tight quarters can wear on mood, sleep, attention and how the team works together.',
-    watchFor: ['Mood', 'Sleep', 'Cognitive readiness'],
-    source: HRP_SOURCE,
+      'Small crews in close quarters for long periods can show behavioural changes; crews must be carefully chosen, trained and supported.',
+    source: SOURCES.hrpHazards.label,
   },
   {
     id: 'distance-from-earth',
     name: 'Distance from Earth',
-    summary: 'Signal delay and no quick return mean the crew must recognise and manage medical problems on their own.',
-    watchFor: ['All vitals', 'Medical supplies', 'Comm delay'],
-    source: HRP_SOURCE,
+    summary:
+      'Mars is about 140 million miles away on average; a Mars mission lasts roughly three years versus a three-day lunar trip; planning and self-sufficiency are key.',
+    source: SOURCES.hrpHazards.label,
   },
   {
     id: 'gravity-fields',
     name: 'Gravity Fields',
-    summary: 'Moving between gravity levels shifts body fluids and affects bone, muscle, balance, the heart and vision.',
-    watchFor: ['Blood pressure', 'Heart rate', 'Eyes', 'Spine'],
-    source: HRP_SOURCE,
+    summary:
+      'Mars gravity is three-eighths of Earth’s; muscles, bones, inner ear and organs must adapt, including on return to Earth.',
+    source: SOURCES.hrpHazards.label,
   },
   {
     id: 'hostile-closed-environments',
     name: 'Hostile/Closed Environments',
-    summary: 'Air quality, carbon dioxide, noise, temperature and microbes inside the vehicle all shape crew health.',
-    watchFor: ['Core temperature', 'Sleep', 'Skin', 'Headache'],
-    source: HRP_SOURCE,
+    summary: 'The spacecraft is both home and machine; temperature, pressure, lighting, noise and microbes all matter.',
+    source: SOURCES.hrpHazards.label,
   },
 ]
+
+export const HAZARD_FOOTNOTE = 'The hazards can feed off one another and worsen effects on the body.'
+
+export function getHazard(id: Hazard['id']): Hazard {
+  return HAZARDS.find((h) => h.id === id)!
+}

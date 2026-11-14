@@ -14,6 +14,9 @@ export type VitalType =
 /** Vitals that carry a single number. */
 export type ScalarVitalType = Exclude<VitalType, 'bloodPressure' | 'imagingLog'>
 
+/** Vitals that can be rated against thresholds. */
+export type RatedVitalType = Exclude<VitalType, 'imagingLog'>
+
 export interface VitalMeta {
   type: VitalType
   label: string
@@ -29,8 +32,8 @@ interface ReadingBase {
   missionDay: number
   /** ISO 8601 timestamp in simulated mission time. */
   timestamp: string
-  /** Every reading in this build is generated. Kept explicit so it can never be mistaken for real data. */
-  simulated: true
+  /** True for generated data, false for readings a person logged in the app. */
+  simulated: boolean
 }
 
 export interface ScalarReading extends ReadingBase {
@@ -46,14 +49,15 @@ export interface PressureReading extends ReadingBase {
   diastolic: number
 }
 
-export type ImagingModality = 'ultrasound' | 'fundus-photo' | 'optical-coherence' | 'photo'
+export type ImagingModality = 'ocular-ultrasound' | 'cardiac-ultrasound' | 'bone'
 
 export interface ImagingReading extends ReadingBase {
   kind: 'imaging'
   vital: 'imagingLog'
-  zone: BodyZone
   modality: ImagingModality
-  note: string
+  zone: BodyZone
+  /** Free-text finding written by the crew member. Never rated. */
+  finding: string
 }
 
 export type VitalReading = ScalarReading | PressureReading | ImagingReading
