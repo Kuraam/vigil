@@ -1,3 +1,12 @@
+import { MotionConfig } from 'motion/react'
+import { RouterProvider } from 'react-router'
+import { router } from './router'
+
 export function App() {
-  return <main className="p-6 font-mono text-accent">VIGIL</main>
+  return (
+    // reducedMotion="user": transforms are dropped when the OS asks for reduced motion.
+    <MotionConfig reducedMotion="user">
+      <RouterProvider router={router} />
+    </MotionConfig>
+  )
 }

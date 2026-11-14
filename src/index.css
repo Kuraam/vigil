@@ -42,11 +42,10 @@
   font-feature-settings: 'tnum' 1, 'zero' 1;
 }
 
-@utility label-caps {
-  font-size: 0.75rem;
-  line-height: 1rem;
+@utility field-label {
+  /* Small, sentence-case labels for readouts and controls. */
+  font-size: 0.8125rem;
+  line-height: 1.125rem;
   font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
   color: var(--color-fg-muted);
 }
