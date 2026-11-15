@@ -1,5 +1,6 @@
 {
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
+  "redirects": [{ "source": "/deck", "destination": "/deck/", "permanent": false }],
+  "rewrites": [{ "source": "/((?!deck(?:/|$)).*)", "destination": "/index.html" }],
   "headers": [
     { "source": "/sw.js", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] },
     { "source": "/registerSW.js", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] },

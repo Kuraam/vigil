@@ -41,13 +41,14 @@ export default defineConfig({
       },
       workbox: {
         // Everything the app needs: HTML, every JS chunk (lazy routes included), CSS, the bundled
-        // IBM Plex woff2 fonts, icons and the manifest. The deck PDF and screenshots are not precached.
+        // IBM Plex woff2 fonts, icons and the manifest. The deck (PDF, PowerPoint, /deck/) and
+        // screenshots are not precached.
         globPatterns: ['**/*.{html,js,css,woff2,svg,png}'],
-        globIgnores: ['**/*.pdf', 'screenshots/**'],
+        globIgnores: ['**/*.pdf', '**/*.pptx', 'screenshots/**', 'deck/**'],
         // Every app route (and unknown paths) loads offline from the cached index.html.
         navigateFallback: 'index.html',
-        // ...but a direct visit to the deck PDF must still reach the network, not the app shell.
-        navigateFallbackDenylist: [/\.pdf$/i, /^\/screenshots\//],
+        // ...but the deck files and the /deck/ presentation must reach the network, not the app shell.
+        navigateFallbackDenylist: [/\.pdf$/i, /\.pptx$/i, /^\/screenshots\//, /^\/deck(\/|$)/],
         // First visit: the new worker takes control at once, so offline works without a reload.
         clientsClaim: true,
         cleanupOutdatedCaches: true,

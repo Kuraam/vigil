@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>VIGIL demo deck</title>
+    <!--
+      VIGIL demo deck: exactly 7 slides, 1920x1080 each.
+      Edit this file, then run `npm run deck` to render docs/VIGIL-demo-deck.pdf
+      and public/VIGIL-demo-deck.pdf. Images are real app screenshots from
+      docs/screenshots (regenerate with `npm run screenshots`). Team names come
+      from src/data/team.json via `npm run sync:team`.
+    -->
+    <style>
+      @font-face { font-family: 'IBM Plex Sans'; src: url('fonts/ibm-plex-sans-latin-400-normal.woff2') format('woff2'); font-weight: 400; }
+      @font-face { font-family: 'IBM Plex Sans'; src: url('fonts/ibm-plex-sans-latin-500-normal.woff2') format('woff2'); font-weight: 500; }
+      @font-face { font-family: 'IBM Plex Sans'; src: url('fonts/ibm-plex-sans-latin-600-normal.woff2') format('woff2'); font-weight: 600; }
+      @font-face { font-family: 'IBM Plex Mono'; src: url('fonts/ibm-plex-mono-latin-400-normal.woff2') format('woff2'); font-weight: 400; }
+      @font-face { font-family: 'IBM Plex Mono'; src: url('fonts/ibm-plex-mono-latin-500-normal.woff2') format('woff2'); font-weight: 500; }
+
+      /* VIGIL design tokens (mirrors src/styles/tokens.css). */
+      :root {
+        --bg: #0b0e11; --panel: #12161b; --raised: #191e24; --line: #262d36; --line-strong: #36404b;
+        --fg: #e6eaee; --fg-muted: #9aa5b1; --fg-faint: #7d8794; --accent: #5cc8e8;
+        --nominal: #3dd68c; --watch: #f5b544; --action: #ff6b6b;
+        --sans: 'IBM Plex Sans', system-ui, sans-serif; --mono: 'IBM Plex Mono', ui-monospace, monospace;
+      }
+      @page { size: 1920px 1080px; margin: 0; }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--sans); }
+      .slide {
+        width: 1920px; height: 1080px; padding: 96px 112px; position: relative; overflow: hidden;
+        display: flex; flex-direction: column; break-after: page; background: var(--bg);
+      }
+      .slide:last-child { break-after: auto; }
+      .num { position: absolute; top: 56px; right: 112px; font: 500 24px var(--mono); color: var(--fg-faint); }
+      .foot { position: absolute; bottom: 48px; left: 112px; right: 112px; display: flex; justify-content: space-between; font-size: 22px; color: var(--fg-faint); }
+      h1 { font-size: 72px; line-height: 1.08; font-weight: 600; margin: 0 0 40px; letter-spacing: -0.01em; max-width: 1500px; }
+      h2 { font-size: 34px; font-weight: 600; margin: 0 0 16px; }
+      p, li { font-size: 34px; line-height: 1.35; color: var(--fg-muted); margin: 0; }
+      strong { color: var(--fg); font-weight: 600; }
+      .mono { font-family: var(--mono); }
+      .accent { color: var(--accent); }
+      .shot { border: 2px solid var(--line-strong); border-radius: 14px; display: block; width: 100%; object-fit: cover; object-position: top left; }
+      .row { display: flex; gap: 48px; flex: 1; min-height: 0; }
+      .col { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 24px; }
+      ul.clean { list-style: none; padding: 0; margin: 0; display: grid; gap: 22px; }
+      ul.clean li { padding-left: 36px; position: relative; }
+      ul.clean li::before { content: ''; position: absolute; left: 0; top: 18px; width: 14px; height: 14px; border-radius: 3px; background: var(--accent); }
+      .card { background: var(--panel); border: 2px solid var(--line); border-radius: 16px; padding: 32px 36px; }
+      .big { font: 500 120px/1 var(--mono); color: var(--fg); letter-spacing: -0.02em; }
+
+      /* 1 Title */
+      .title .wordmark { font-size: 200px; font-weight: 600; letter-spacing: 0.16em; line-height: 1; margin: 40px 0 28px; }
+      .title .tagline { font-size: 48px; color: var(--fg); max-width: 900px; line-height: 1.25; }
+      .title .team { margin-top: auto; display: grid; gap: 10px; }
+      .title .team ul { list-style: none; padding: 0; margin: 0; display: flex; gap: 48px; }
+      .title .team li { font-size: 30px; color: var(--fg); }
+      .title .side { position: absolute; right: -160px; top: 150px; width: 980px; opacity: 0.9; transform: perspective(2400px) rotateY(-14deg); }
+
+      /* 2 Problem */
+      .hazards { display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; margin: 8px 0 48px; }
+      .hazards div { background: var(--panel); border: 2px solid var(--line); border-radius: 14px; padding: 26px 24px; font-size: 30px; font-weight: 500; color: var(--fg); line-height: 1.2; min-height: 150px; }
+
+      /* 4 Fever path */
+      .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; flex: 1; min-height: 0; }
+      .step { display: flex; flex-direction: column; gap: 16px; min-height: 0; }
+      .step .k { font: 500 26px var(--mono); color: var(--accent); }
+      .step .t { font-size: 34px; font-weight: 600; color: var(--fg); }
+      .step img { width: 100%; height: auto; max-height: 440px; object-fit: cover; object-position: top left; background: var(--panel); }
+      .rule { margin-top: 28px; display: flex; gap: 28px; }
+      .rule .card { flex: 1; padding: 24px 32px; }
+      .rule p { font-size: 30px; }
+
+      /* 5 Data */
+      .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+      .grid3 .card p { font-size: 28px; }
+      .grid3 .card h2 { font-size: 32px; }
+    </style>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <style>
+      /* Presenter: one slide at a time, scaled to the window. */
+      html, body { height: 100%; overflow: hidden; }
+      body { position: relative; }
+      section.slide { display: none; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) scale(var(--scale, 0.5)); transform-origin: center; }
+      section.slide.is-current { display: flex; }
+      .presenter-bar { position: fixed; right: 16px; bottom: 12px; display: flex; align-items: center; gap: 6px; font: 500 14px var(--mono); color: var(--fg-faint); z-index: 10; }
+      .presenter-bar button { width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--line-strong); background: var(--panel); color: var(--fg-muted); font: 500 16px var(--mono); cursor: pointer; }
+      .presenter-bar button:hover { color: var(--fg); border-color: var(--fg-faint); }
+      .presenter-bar button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+      .presenter-bar .count { min-width: 3.5em; text-align: center; }
+      .presenter-hint { position: fixed; left: 16px; bottom: 12px; font: 400 13px var(--sans); color: var(--fg-faint); z-index: 10; transition: opacity 0.6s; }
+      :fullscreen .presenter-bar, :fullscreen .presenter-hint { opacity: 0; }
+      :fullscreen .presenter-bar:hover { opacity: 1; }
+      @media (prefers-reduced-motion: reduce) { .presenter-hint { transition: none; } }
+    </style>
+  </head>
+  <body>
+    <!-- 1. Title -->
+    <section class="slide title">
+      <span class="num">1 / 7</span>
+      <p class="mono" style="font-size: 26px; color: var(--fg-faint)">NASA Space Apps Challenge 2026</p>
+      <div class="wordmark">VIGIL</div>
+      <p class="tagline">Health monitoring a crew can act on when Earth is minutes away.</p>
+      <img class="shot side" src="screenshots/overview-transit.png" alt="" />
+      <div class="team">
+        <p style="font-size: 30px; color: var(--fg)"><strong>Pandanauts</strong></p>
+        <ul><!-- team:start --><li>Ahmad Kura Muhammad, Team Lead</li><li>Muhammad Danjuma, AI Engineer</li><!-- team:end --></ul>
+        <p style="font-size: 26px">Challenge: Create Health Monitoring Software for Astronauts on Space Missions</p>
+        <p class="mono accent" style="font-size: 28px">vigil-pandas.vercel.app</p>
+      </div>
+    </section>
+
+    <!-- 2. The problem -->
+    <section class="slide">
+      <span class="num">2 / 7</span>
+      <h1>On the way to Mars, help is up to <span class="accent">22 minutes</span> away. One way.</h1>
+      <p style="margin-bottom: 20px">The five hazards of human spaceflight (NASA HRP):</p>
+      <div class="hazards">
+        <div>Space radiation</div>
+        <div>Isolation and confinement</div>
+        <div>Distance from Earth</div>
+        <div>Gravity fields</div>
+        <div>Hostile, closed environments</div>
+      </div>
+      <p>NASA HRP names a <strong>Risk of Inadequate Systems Operations Support</strong>.</p>
+      <p style="margin-top: 16px; font-size: 44px; color: var(--fg); font-weight: 600">Crews must be able to assess themselves.</p>
+      <div class="foot"><span>Sources: NASA HRP 5 Hazards; NASA HRP Risks; NASA Mars Relay Network (~3 to ~22 min one-way)</span></div>
+    </section>
+
+    <!-- 3. What VIGIL is -->
+    <section class="slide">
+      <span class="num">3 / 7</span>
+      <h1>One console. Three questions.</h1>
+      <div class="row">
+        <div class="col" style="flex: 0 0 520px; gap: 36px; padding-top: 8px">
+          <div><p class="mono accent" style="font-size: 26px">1</p><p style="font-size: 42px; color: var(--fg); font-weight: 600">What is my status?</p><p style="font-size: 28px">Every reading rated nominal, watch or action.</p></div>
+          <div><p class="mono accent" style="font-size: 26px">2</p><p style="font-size: 42px; color: var(--fg); font-weight: 600">Why does it matter here?</p><p style="font-size: 28px">Body systems linked to NASA HRP risks and the current environment.</p></div>
+          <div><p class="mono accent" style="font-size: 26px">3</p><p style="font-size: 42px; color: var(--fg); font-weight: 600">What do I do now?</p><p style="font-size: 28px">A guided protocol, without waiting for Earth.</p></div>
+          <p style="font-size: 34px; color: var(--accent); font-weight: 600">Works fully offline.</p>
+        </div>
+        <div class="col" style="gap: 28px">
+          <img class="shot" style="height: 380px" src="screenshots/overview-transit.png" alt="VIGIL Overview" />
+          <img class="shot" style="height: 380px" src="screenshots/body-map-arjun.png" alt="VIGIL Body Map" />
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. The user experience -->
+    <section class="slide">
+      <span class="num">4 / 7</span>
+      <h1 style="margin-bottom: 32px">A fever on day 29, handled on board</h1>
+      <div class="steps">
+        <div class="step"><span class="k">1 Alert</span><span class="t">38.3 °C leads the queue</span><img class="shot" src="screenshots/deck/alert.png" alt="" /></div>
+        <div class="step"><span class="k">2 Protocol</span><span class="t">Four guided steps</span><img class="shot" src="screenshots/deck/protocol-act.png" alt="" /></div>
+        <div class="step"><span class="k">3 Re-measure</span><span class="t">37.4 °C, status updates</span><img class="shot" src="screenshots/deck/remeasure.png" alt="" /></div>
+        <div class="step"><span class="k">4 Downlink</span><span class="t">A few KB of plain text</span><img class="shot" src="screenshots/deck/brief.png" alt="" /></div>
+      </div>
+      <div class="rule">
+        <div class="card"><p><strong>Orbit:</strong> ground-guided. Reply in under 2 s.</p></div>
+        <div class="card"><p><strong>Mars:</strong> crew-autonomous first. Reply in up to 44.6 min.</p></div>
+      </div>
+    </section>
+
+    <!-- 5. Data -->
+    <section class="slide">
+      <span class="num">5 / 7</span>
+      <h1>Built on NASA data and published science</h1>
+      <div class="grid3">
+        <div class="card"><h2>NASA HRP</h2><p>5 Hazards, named Risks and ongoing research shape the hazard panel and Body Map.</p></div>
+        <div class="card"><h2>Curiosity RAD</h2><p><span class="mono" style="color: var(--fg)">1.84</span> mSv/day in cruise, <span class="mono" style="color: var(--fg)">0.64</span> on the Mars surface.</p></div>
+        <div class="card"><h2>NASA-STD-3001</h2><p>Career limit <span class="mono" style="color: var(--fg)">600</span> mSv. Solar particle event limit <span class="mono" style="color: var(--fg)">250</span> mSv.</p></div>
+        <div class="card"><h2>CSA</h2><p>Neutrons are about 30% of ISS radiation; CANS spectrometer research.</p></div>
+        <div class="card"><h2>Clinical</h2><p>AHA, ADA, CDC, WHO and AASM thresholds for vitals.</p></div>
+        <div class="card"><h2>Team rules</h2><p>Gaps between published figures are labelled as VIGIL team rules.</p></div>
+      </div>
+      <p style="margin-top: 48px; font-size: 44px; color: var(--fg); font-weight: 600">Every threshold shows its source in the app.</p>
+    </section>
+
+    <!-- 6. Prevention and environments -->
+    <section class="slide">
+      <span class="num">6 / 7</span>
+      <h1>Prevention, tuned to where the crew is</h1>
+      <div class="row">
+        <div class="col" style="flex: 0 0 600px">
+          <ul class="clean">
+            <li><strong>Daily routine</strong> with points, streaks and a crew streak.</li>
+            <li><strong>Hazard priority</strong> re-ranked for each environment.</li>
+            <li><strong>Radiation days remaining</strong> at today’s dose rate.</li>
+            <li>Exercise adherence feeds the bones and muscles rating.</li>
+          </ul>
+        </div>
+        <div class="col">
+          <img class="shot" style="height: 380px" src="screenshots/routine.png" alt="VIGIL Routine" />
+          <img class="shot" style="height: 380px; object-position: 100% 10%" src="screenshots/environment-surface.png" alt="VIGIL Overview on Surface Base" />
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. Looking ahead -->
+    <section class="slide">
+      <span class="num">7 / 7</span>
+      <h1>Looking ahead</h1>
+      <ul class="clean" style="gap: 30px">
+        <li><strong>Real input</strong> from wearables and medical devices.</li>
+        <li><strong>Native tablet</strong> packaging for use on board.</li>
+        <li><strong>Validation</strong> of rules and protocols with flight surgeons.</li>
+        <li><strong>Moon and Mars bases</strong> as new environments.</li>
+      </ul>
+      <div class="card" style="margin-top: auto; display: flex; justify-content: space-between; align-items: center">
+        <p class="mono" style="font-size: 34px; color: var(--fg)">vigil-pandas.vercel.app</p>
+        <p class="mono" style="font-size: 34px; color: var(--fg)">github.com/Kuraam/vigil</p>
+      </div>
+      <p style="margin-top: 28px; font-size: 24px; color: var(--fg-faint)">Built with AI-assisted development (Claude). All crew data simulated.</p>
+    </section>
+
+    <div class="presenter-hint" id="presenter-hint">Arrow keys or Space to move, F for fullscreen</div>
+    <nav class="presenter-bar" aria-label="Slides">
+      <button type="button" id="prev" aria-label="Previous slide">&lsaquo;</button>
+      <span class="count" id="count" aria-live="polite">1/7</span>
+      <button type="button" id="next" aria-label="Next slide">&rsaquo;</button>
+      <button type="button" id="fs" aria-label="Toggle fullscreen (F)">&#x26F6;</button>
+    </nav>
+    <script>
+      (() => {
+        const slides = [...document.querySelectorAll('section.slide')]
+        const count = document.getElementById('count')
+        let i = 0
+        const fromHash = () => {
+          const n = parseInt(location.hash.slice(1), 10)
+          return Number.isFinite(n) ? Math.min(Math.max(n, 1), slides.length) - 1 : 0
+        }
+        const fit = () => document.documentElement.style.setProperty('--scale', String(Math.min(innerWidth / 1920, innerHeight / 1080)))
+        const show = (n, updateHash = true) => {
+          i = Math.min(Math.max(n, 0), slides.length - 1)
+          slides.forEach((s, k) => {
+            s.classList.toggle('is-current', k === i)
+            s.setAttribute('aria-hidden', String(k !== i))
+          })
+          count.textContent = (i + 1) + '/' + slides.length
+          document.title = 'VIGIL demo deck (' + (i + 1) + '/' + slides.length + ')'
+          if (updateHash && location.hash !== '#' + (i + 1)) history.replaceState(null, '', '#' + (i + 1))
+        }
+        const fullscreen = () => (document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen()).catch(() => {})
+        addEventListener('keydown', (e) => {
+          if (e.altKey || e.ctrlKey || e.metaKey) return
+          const k = e.key
+          if (['ArrowRight', 'ArrowDown', 'PageDown', ' ', 'Enter'].includes(k)) show(i + 1)
+          else if (['ArrowLeft', 'ArrowUp', 'PageUp', 'Backspace'].includes(k)) show(i - 1)
+          else if (k === 'Home') show(0)
+          else if (k === 'End') show(slides.length - 1)
+          else if (k === 'f' || k === 'F') fullscreen()
+          else return
+          e.preventDefault()
+        })
+        document.getElementById('prev').addEventListener('click', () => show(i - 1))
+        document.getElementById('next').addEventListener('click', () => show(i + 1))
+        document.getElementById('fs').addEventListener('click', fullscreen)
+        addEventListener('hashchange', () => show(fromHash(), false))
+        addEventListener('resize', fit)
+        fit()
+        show(fromHash())
+        setTimeout(() => (document.getElementById('presenter-hint').style.opacity = '0'), 4000)
+      })()
+    </script>
+  </body>
+</html>

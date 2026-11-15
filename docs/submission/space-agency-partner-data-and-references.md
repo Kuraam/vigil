@@ -47,6 +47,7 @@ Tiers that published figures do not cover are labelled "VIGIL triage rule (team-
 | oxlint | MIT |
 | playwright-core | Apache-2.0 |
 | vite-plugin-pwa, Workbox (offline service worker) | MIT |
+| pptxgenjs, JSZip (PowerPoint version of the deck) | MIT; JSZip dual MIT or GPLv3 (used under MIT) |
 
 ## Fonts
 

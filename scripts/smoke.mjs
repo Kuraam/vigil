@@ -649,6 +649,56 @@ try {
     await page.close()
   }
 
+  // DECK FORMATS (built targets only: the dev server does not serve /deck/).
+  if (target) {
+    for (const viewport of [{ width: 1920, height: 1080 }, { width: 1366, height: 768 }]) {
+      const { page, errors } = await openPage(viewport)
+      const res = await page.goto(base + '/deck/', { waitUntil: 'networkidle' })
+      const isDeck = (await page.title()).startsWith('VIGIL demo deck')
+      check(`/deck/ loads the presentation directly at ${viewport.width}x${viewport.height}`, (res?.status() ?? 0) < 400 && isDeck, `${res?.status()} "${await page.title()}"`)
+      const fits = await page.evaluate(() => {
+        const r = document.querySelector('section.slide.is-current')?.getBoundingClientRect()
+        return !!r && r.left >= -1 && r.top >= -1 && r.right <= innerWidth + 1 && r.bottom <= innerHeight + 1 && (Math.abs(r.width - innerWidth) < 2 || Math.abs(r.height - innerHeight) < 2)
+      })
+      check(`deck slide fills the window at 16:9 (${viewport.width}x${viewport.height})`, fits)
+      const imagesOk = await page.evaluate(() => [...document.images].every((i) => i.complete && i.naturalWidth > 0))
+      check('deck images and fonts load', imagesOk && (await page.evaluate(() => document.fonts.check('600 72px "IBM Plex Sans"'))))
+      // Every slide reachable by keyboard; counter and hash follow.
+      const keys = ['ArrowRight', ' ', 'PageDown', 'ArrowRight', 'ArrowRight', 'ArrowRight']
+      let ok = true
+      for (const [k, key] of keys.entries()) {
+        await page.keyboard.press(key)
+        const n = k + 2
+        const state = await page.evaluate(() => ({ hash: location.hash, count: document.getElementById('count')?.textContent, cur: [...document.querySelectorAll('section.slide')].findIndex((s) => s.classList.contains('is-current')) }))
+        if (state.hash !== `#${n}` || state.count !== `${n}/7` || state.cur !== n - 1) ok = false
+      }
+      await page.keyboard.press('ArrowRight')
+      ok &&= (await page.evaluate(() => location.hash)) === '#7' // stays on the last slide
+      await page.keyboard.press('PageUp')
+      await page.keyboard.press('ArrowLeft')
+      ok &&= (await page.evaluate(() => location.hash)) === '#5'
+      check(`deck: all 7 slides reachable by keyboard; counter and hash follow (${viewport.width})`, ok)
+      await page.keyboard.press('f')
+      const fs = await page.waitForFunction(() => !!document.fullscreenElement, null, { timeout: 3000 }).then(() => true, () => false)
+      check('deck: F toggles fullscreen', fs)
+      if (fs) await page.keyboard.press('f')
+      check(`deck console clean (${viewport.width})`, errors.length === 0, errors.join(' | '))
+      await page.close()
+    }
+    {
+      const { page, errors } = await openPage({ width: 1366, height: 768 })
+      await page.goto(base + '/deck/#3', { waitUntil: 'networkidle' })
+      const cur = await page.evaluate(() => ({ count: document.getElementById('count')?.textContent, text: document.querySelector('section.slide.is-current h1')?.textContent }))
+      check('deck: /deck/#3 opens slide 3', cur.count === '3/7' && cur.text === 'One console. Three questions.', JSON.stringify(cur))
+      const pptx = await page.request.get(base + '/VIGIL-demo-deck.pptx')
+      check('PowerPoint deck downloads (HTTP 200)', pptx.status() === 200 && (await pptx.body()).subarray(0, 2).toString() === 'PK', `${pptx.status()} ${pptx.headers()['content-type']}`)
+      const pdf = await page.request.get(base + '/VIGIL-demo-deck.pdf')
+      check('PDF deck still served', pdf.status() === 200 && (pdf.headers()['content-type'] ?? '').includes('pdf'))
+      check('deck links console clean', errors.length === 0, errors.join(' | '))
+      await page.close()
+    }
+  }
+
   // 4. Narrow screen render for review.
   {
     const { page, errors } = await openPage({ width: 390, height: 844 })

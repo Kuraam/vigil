@@ -2,7 +2,7 @@
 
 **Live app:** https://vigil-pandas.vercel.app
 **Repository:** https://github.com/Kuraam/vigil
-**Demo deck (PDF, 7 slides):** https://vigil-pandas.vercel.app/VIGIL-demo-deck.pdf
+**Demo deck (7 slides):** [PDF](https://vigil-pandas.vercel.app/VIGIL-demo-deck.pdf) (official submission) | [PowerPoint](https://vigil-pandas.vercel.app/VIGIL-demo-deck.pptx) (editable) | [Browser presentation](https://vigil-pandas.vercel.app/deck/) (arrow keys, F for fullscreen)
 
 > **Simulated data. Concept demonstration, not a medical device.**
 
@@ -136,6 +136,8 @@ npm run dev          # http://localhost:5173
 | `npm run smoke` | Browser check of every route, the tour, reset and the end-to-end fever path. Set `SMOKE_URL` to test a running build |
 | `npm run screenshots` | Regenerate `docs/screenshots/` (1920x1080) |
 | `npm run deck` | Render `docs/deck/index.html` to the 7-page PDF in `docs/` and `public/` |
+| `npm run deck:pptx` | Rebuild the deck as an editable PowerPoint (`docs/VIGIL Demo Deck.pptx`, `public/VIGIL-demo-deck.pptx`) and check its text against the PDF |
+| `npm run deck:web` | Copy the deck to `public/deck/` as a browser presentation (served at `/deck/`) |
 | `npm run offline` | Offline test against a production build (`npm run build` first) or `OFFLINE_URL`: precache, every route offline, the fever path offline |
 | `npm run icons` | Render the app icons in `public/icons/` from the VIGIL mark |
 | `npm run sync:team` | Copy the team from `src/data/team.json` into the README, submission files and deck |
