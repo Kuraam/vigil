@@ -4,7 +4,7 @@
 
 VIGIL is a health console for a four-person crew on a Mars mission. It helps astronauts who are not physicians look after themselves and each other when Earth is minutes away. It answers three questions.
 
-**What is my status?** The Overview shows the latest reading of each vital sign (heart rate, blood pressure, heart rate variability, core temperature, blood glucose, sleep, mood, cognitive readiness, blood oxygen and a daily vision self-check). Each reading is rated nominal, watch or action. Every rating uses a colour, an icon and a word, and every threshold shows where it comes from.
+**What is my status?** The Overview shows the latest reading of each vital sign (heart rate, blood pressure, heart rate variability, core temperature, blood glucose, sleep, mood, cognitive readiness, blood oxygen and a daily vision self-check). Each reading is rated nominal, watch or action. Every rating uses a colour, an icon and a word, and every threshold shows where it comes from. A crew bar and "Crew at a glance" cards show who needs attention, and the app offers light and dark themes for different lighting conditions.
 
 **Why does it matter here?** The Body Map groups readings into eight body systems and links each one to the NASA Human Research Program risks that affect it. The crew can switch between four environments (spacecraft transit, orbital station, pressurized rover and Mars surface base). The environment changes the signal delay to Earth, the ranking of the five spaceflight hazards, and the radiation dose rate. The radiation panel shows career dose against NASA's 600 mSv limit and how many days are left at today's rate.
 
@@ -14,13 +14,23 @@ A Routine page supports prevention with a daily checklist (exercise, sleep, nutr
 
 ## How it works
 
-VIGIL is a single-page web app that runs entirely in the browser, with no server or account. Thresholds are stored as data, each value with its unit and source, and a set of pure, unit-tested functions turns readings into ratings, alerts, protocol state and the brief. Where published figures leave a gap, the rule is labelled as a team rule and is not presented as clinical fact. Protocols never name medicines or doses. After the first visit VIGIL is stored on the device as an installable app, so every page, protocol and the Downlink brief work with no network connection.
+VIGIL is a single-page web app. All processing happens in the browser, with no server or account. After the first visit VIGIL is stored on the device as an installable app, so every page, protocol and the Downlink brief work with no network connection. Thresholds are stored as data, each value with its unit and source, and a set of tested functions turns readings into ratings, alerts, protocol state and the brief. Where published figures leave a gap, the rule is labelled as a team rule and is not presented as clinical fact. Protocols never name medicines or doses.
 
-The demo uses a seeded simulation of 30 mission days with two storylines: the flight engineer builds up sleep debt from day 22, and the mission specialist develops a 38.3 °C fever on day 29. A guided tour walks a new visitor through the fever case from alert to downlink in about a minute.
+The demo uses a seeded simulation of 30 mission days with two storylines: the flight engineer builds up sleep debt from day 22, and the mission specialist develops a 38.3 °C fever on day 29. A guided tour walks a new visitor through the fever case, from alert to downlink, in about a minute.
+
+## What makes it creative
+
+- Distance from Earth is a design input. The same reading leads to different guidance depending on how long a reply from Earth would take.
+- It keeps working with no connection to Earth. After one visit, every page and protocol runs on the device.
+- The Body Map explains why a number matters, by linking it to NASA's named spaceflight risks, not just whether it is high or low.
+- It is honest by design. Every threshold shows its source, and the rules we made ourselves are labelled.
 
 ## Factors we considered
 
-A deep-space crew cannot depend on servers on Earth, so VIGIL works fully offline and all processing happens on the device.
+- The users are not physicians, so we used plain language and step-by-step checks.
+- Status never relies on colour alone. Icons and words make it readable for everyone.
+- Safety comes first. No medicines or doses are named, and any red-flag symptom escalates straight away.
+- A deep-space crew cannot depend on servers on Earth, so VIGIL works fully offline and all processing happens on the device.
 
 ## Benefits
 
@@ -35,7 +45,7 @@ We want to show that an Earth-independent health tool can be clear, honest about
 
 ## Tools, languages and software
 
-TypeScript, React, Vite, vite-plugin-pwa with Workbox (offline service worker), Tailwind CSS, Motion, Zustand, React Router, Recharts, lucide-react icons, IBM Plex fonts, Vitest, oxlint and Playwright (for browser tests, screenshots and the deck PDF). Hosted on Vercel, code on GitHub. Code was written with the assistance of Claude (Anthropic), directed and reviewed by the team.
+TypeScript, React, Vite, Tailwind CSS, Motion, Zustand, React Router, Recharts, vite-plugin-pwa (offline support), lucide-react icons, IBM Plex fonts, Vitest, oxlint and Playwright (for browser tests, screenshots and the deck PDF). Hosted on Vercel, with the code on GitHub. We used Claude (Anthropic) as an AI assistant to help plan the build, research sources and write step-by-step instructions for the coding assistant. The code was written with Claude Code, and the team reviewed and edited the results at each stage.
 
 ## Team
 

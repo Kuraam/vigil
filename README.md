@@ -78,6 +78,8 @@ NASA does not endorse any non-U.S. Government entity. Non-NASA sources are used 
 
 American Heart Association (blood pressure categories, low blood pressure, resting heart rate, how to measure blood pressure); American Diabetes Association (Standards of Care, 15-15 rule); CDC fever definition; the clinical definition of hypothermia; WHO Pulse Oximetry Training Manual (2011); AASM/SRS 2015 sleep consensus; Barger et al., 2014; Stahn et al., 2017; Basner et al., 2015.
 
+Offline support uses vite-plugin-pwa (MIT) and Workbox (MIT). Every library with its licence is listed in [docs/submission/space-agency-partner-data-and-references.md](docs/submission/space-agency-partner-data-and-references.md).
+
 ## Use of AI tools
 
 - **Planning and research.** We used Claude (Anthropic) as a chat assistant to plan the build, research sources and write step-by-step instructions for the coding assistant. It suggested the initial product structure, the threshold values and their published sources, and the protocol content. We reviewed these, checked the sources, decided what to keep and made the final product decisions.
