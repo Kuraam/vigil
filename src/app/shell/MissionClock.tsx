@@ -37,7 +37,7 @@ export function MissionClock({ missionDay }: { missionDay: number }) {
           aria-labelledby="met-label"
           // Ticks every second: kept out of live regions so screen readers are not flooded.
           aria-live="off"
-          className="readout block text-2xl leading-7 font-medium text-fg"
+          className="readout block text-xl leading-7 font-medium text-fg 2xl:text-2xl"
         >
           {pad(d, 3)}:{pad(h, 2)}:{pad(m, 2)}:{pad(s, 2)}
         </time>

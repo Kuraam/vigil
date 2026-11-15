@@ -149,7 +149,7 @@ export function DownlinkPage() {
           <p role="status" className="min-h-5 px-4 text-sm text-fg-muted print:hidden sm:px-5">
             {copied}
           </p>
-          <pre data-testid="brief-text" tabIndex={0} aria-label="Downlink brief text" className="readout m-4 mt-2 max-h-[36rem] overflow-auto rounded-md border border-line bg-bg p-4 text-[13px] leading-relaxed whitespace-pre-wrap text-fg print:m-0 print:max-h-none print:overflow-visible print:border-0 print:bg-white print:p-0 print:text-black sm:m-5 sm:mt-2">
+          <pre data-testid="brief-text" tabIndex={0} aria-label="Downlink brief text" className="readout m-4 mt-2 max-h-[36rem] overflow-auto rounded-md border border-line bg-bg p-4 text-[13px] leading-relaxed whitespace-pre-wrap text-fg print:m-0 print:max-h-none print:overflow-visible print:border-0 print:bg-paper print:p-0 print:text-ink sm:m-5 sm:mt-2">
             {brief}
           </pre>
         </section>

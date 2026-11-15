@@ -21,7 +21,7 @@ export function CrewAlertIndicator() {
         to="/triage?view=crew-all"
         data-testid="crew-alerts"
         aria-label={`Crew alerts: ${clear ? 'all nominal' : `${totals.action} action, ${totals.watch} watch`}. Open Triage for the whole crew.`}
-        className={`mt-0.5 inline-flex h-11 items-center gap-2 rounded-md border px-2.5 text-sm font-medium whitespace-nowrap transition-colors hover:brightness-125 ${chip}`}
+        className={`mt-0.5 inline-flex h-11 items-center gap-2 rounded-md border px-2.5 text-sm font-medium whitespace-nowrap transition-colors hover:ring-1 hover:ring-line-strong ${chip}`}
       >
         <Icon aria-hidden className={`size-4 shrink-0 ${text}`} strokeWidth={2.25} />
         <span className="text-fg">Crew:</span>{' '}

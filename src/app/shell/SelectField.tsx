@@ -31,7 +31,7 @@ export function SelectField({
           id={id}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="h-11 w-full min-w-48 cursor-pointer appearance-none rounded-md border border-line-strong bg-raised pr-9 pl-3 text-base text-fg transition-colors hover:border-fg-faint"
+          className="h-11 w-full min-w-44 cursor-pointer appearance-none rounded-md border border-line-strong bg-raised pr-9 pl-3 text-base text-fg transition-colors hover:border-fg-faint"
         >
           {options.map((o) => (
             <option key={o.value} value={o.value}>

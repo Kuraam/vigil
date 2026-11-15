@@ -12,6 +12,7 @@ import { CommDelay } from './CommDelay'
 import { CrewAlertIndicator } from './CrewAlertIndicator'
 import { MissionClock } from './MissionClock'
 import { SelectField } from './SelectField'
+import { ThemeToggle } from './ThemeToggle'
 
 function Wordmark() {
   return (
@@ -41,7 +42,7 @@ export function TopBar() {
 
   return (
     <header className="border-b border-line bg-panel print:hidden">
-      <div className="flex flex-wrap items-end gap-x-4 gap-y-4 px-4 py-3 sm:px-6 2xl:gap-x-8">
+      <div className="flex flex-wrap items-end gap-x-3 gap-y-4 px-4 py-3 sm:px-6 2xl:gap-x-8">
         <Wordmark />
         <MissionClock missionDay={latestMissionDay(readings)} />
         <div className="flex flex-wrap items-end gap-x-3 gap-y-3 xl:ml-auto 2xl:gap-x-4">
@@ -78,6 +79,7 @@ export function TopBar() {
             </Link>
           </div>
           </div>
+          <ThemeToggle />
         </div>
       </div>
     </header>

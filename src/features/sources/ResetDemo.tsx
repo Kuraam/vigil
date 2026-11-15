@@ -35,7 +35,7 @@ export function ResetDemo() {
       <dialog
         ref={dialog}
         aria-labelledby="reset-confirm-title"
-        className="m-auto w-[min(28rem,calc(100vw-2rem))] rounded-lg border border-line-strong bg-raised p-5 text-fg backdrop:bg-black/60"
+        className="m-auto w-[min(28rem,calc(100vw-2rem))] rounded-lg border border-line-strong bg-raised p-5 text-fg backdrop:bg-scrim/60"
       >
         <h3 id="reset-confirm-title" className="text-lg font-semibold">
           Reset demo data?

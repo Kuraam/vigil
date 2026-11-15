@@ -6,6 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#0b0e11" />
     <meta name="description" content="VIGIL: Earth-independent crew health console (concept demonstration, simulated data)." />
+    <!-- Apply the saved theme before first paint, so the page never flashes the wrong theme. Key: src/lib/theme.ts -->
+    <script>
+      try {
+        if (localStorage.getItem('vigil-theme') === 'light') document.documentElement.dataset.theme = 'light'
+      } catch (e) {}
+    </script>
     <title>VIGIL · Crew Health Console</title>
   </head>
   <body>

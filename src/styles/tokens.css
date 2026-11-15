@@ -7,7 +7,10 @@
  *  - `accent` is for interactive affordances only (focus, active nav, links).
  *  - `nominal` / `watch` / `action` / `nodata` are for STATUS ONLY and are
  *    always paired with an icon and a text label (see StatusChip).
- *  - Contrast: every text colour below is >= 4.5:1 on `panel` (#12161B).
+ *  - Contrast: every text and status colour is >= 4.5:1 on bg, panel, raised
+ *    and its own status tint, in both themes (checked by src/styles/tokens.test.ts).
+ *  - Dark is the default. The light theme overrides the same names under
+ *    [data-theme="light"], so components never name a colour directly.
  */
 @theme {
   /* Surfaces, darkest to lightest */
@@ -32,10 +35,42 @@
   --color-action: #ff6b6b;
   --color-nodata: #8b95a1;
 
+  /* Overlays and print */
+  --color-scrim: #000000;
+  --color-shadow: #000000;
+  --color-paper: #ffffff;
+  --color-ink: #000000;
+
   /* Type */
   --font-sans: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', monospace;
 
   /* Motion */
   --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* Light theme: same token names, its own values. Status colours are darker so
+   they keep >= 4.5:1 text contrast on light surfaces. */
+:root[data-theme='light'] {
+  color-scheme: light;
+  --color-bg: #eef1f5;
+  --color-panel: #ffffff;
+  --color-raised: #f4f6f9;
+  --color-line: #d6dce4;
+  --color-line-strong: #aeb8c4;
+
+  --color-fg: #121a23;
+  --color-fg-muted: #46525f;
+  --color-fg-faint: #586472;
+
+  --color-accent: #0b6e8f;
+  --color-accent-ink: #ffffff;
+
+  --color-nominal: #17784a;
+  --color-watch: #8a5500;
+  --color-action: #c0262d;
+  --color-nodata: #5a6573;
+
+  --color-scrim: #0d1620;
+  --color-shadow: #1c2a38;
 }

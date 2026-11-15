@@ -555,6 +555,57 @@ try {
     await page.close()
   }
 
+  // THEME: dark by default; the toggle switches every route to light and back with no console errors,
+  // the choice persists, and the saved theme is applied before first paint.
+  {
+    const { page, errors } = await openPage({ width: 1366, height: 645 })
+    await page.goto(base + '/overview', { waitUntil: 'networkidle' })
+    const theme = () => page.evaluate(() => document.documentElement.dataset.theme ?? 'dark')
+    const bg = () => page.evaluate(() => getComputedStyle(document.body).backgroundColor)
+    check('dark is the default theme', (await theme()) === 'dark')
+    const toggle = page.getByTestId('theme-toggle')
+    check('theme toggle has an accessible label', (await toggle.getAttribute('aria-label')) === 'Switch to light theme')
+    for (const { path, heading } of ROUTES) {
+      await page.goto(base + path, { waitUntil: 'networkidle' })
+      await page.locator('h1', { hasText: heading }).waitFor({ timeout: 5000 }).catch(() => {})
+      const darkBg = await bg()
+      await page.getByTestId('theme-toggle').click()
+      const lightBg = await bg()
+      const ok = (await theme()) === 'light' && darkBg !== lightBg
+      // Charts and the Body Map read colours from tokens: they must follow the theme too.
+      let svgOk = true
+      if (path === '/vitals') svgOk = (await page.locator('.recharts-line-curve').first().getAttribute('stroke')) === (await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--color-fg').trim()))
+      if (path === '/body-map') svgOk = (await page.locator('[data-zone="skin-temperature"] g').nth(2).getAttribute('fill')) === (await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--color-panel').trim()))
+      await page.getByTestId('theme-toggle').click()
+      check(`${path}: toggles to light and back`, ok && svgOk && (await theme()) === 'dark' && (await bg()) === darkBg, `${darkBg} -> ${lightBg}${svgOk ? '' : ' (svg colours did not follow)'}`)
+    }
+    await page.getByTestId('theme-toggle').click()
+    await page.reload({ waitUntil: 'networkidle' })
+    check('light theme persists across reload', (await theme()) === 'light')
+    check('toggle label updates', (await page.getByTestId('theme-toggle').getAttribute('aria-label')) === 'Switch to dark theme')
+    // Pre-paint: the attribute must already be set when the HTML is parsed, before the app's script runs.
+    const html = await (await page.request.get(base + '/overview')).text()
+    check('saved theme is applied before first paint (inline head script)', html.indexOf("localStorage.getItem('vigil-theme')") > -1 && html.indexOf("localStorage.getItem('vigil-theme')") < html.indexOf('</head>'))
+    {
+      // Block the app's JavaScript entirely: only the HTML (with its inline head script) and CSS load.
+      const bare = await browser.newPage({ viewport: { width: 800, height: 600 } })
+      await bare.goto(base + '/overview', { waitUntil: 'commit' })
+      await bare.evaluate(() => localStorage.setItem('vigil-theme', 'light'))
+      await bare.route(
+        (u) => u.pathname === '/src/main.tsx' || (u.pathname.startsWith('/assets/index-') && u.pathname.endsWith('.js')),
+        (r) => r.abort(),
+      )
+      await bare.goto(base + '/overview', { waitUntil: 'load' })
+      const early = await bare.evaluate(() => document.documentElement.dataset.theme ?? 'none')
+      check('saved light theme is applied with no app JavaScript (no flash)', early === 'light', early)
+      await bare.evaluate(() => localStorage.clear())
+      await bare.close()
+    }
+    check('theme console clean', errors.length === 0, errors.join(' | '))
+    await page.evaluate(() => localStorage.clear())
+    await page.close()
+  }
+
   // 4. Narrow screen render for review.
   {
     const { page, errors } = await openPage({ width: 390, height: 844 })

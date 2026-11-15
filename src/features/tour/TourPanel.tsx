@@ -63,7 +63,7 @@ export function TourPanel() {
       aria-labelledby="tour-title"
       aria-describedby="tour-caption"
       data-testid="tour-panel"
-      className="fixed right-4 bottom-16 z-40 w-[min(26rem,calc(100vw-2rem))] rounded-lg border border-accent bg-raised p-4 shadow-2xl shadow-black/50 print:hidden"
+      className="fixed right-4 bottom-16 z-40 w-[min(26rem,calc(100vw-2rem))] rounded-lg border border-accent bg-raised p-4 shadow-2xl shadow-shadow/40 print:hidden"
     >
       <div className="flex items-start justify-between gap-3">
         <p className="readout text-xs text-fg-muted">
