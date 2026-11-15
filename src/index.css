@@ -61,7 +61,7 @@
 }
 @keyframes zone-pulse {
   50% {
-    stroke-opacity: 0.45;
+    opacity: 0.35;
   }
 }
 @media (prefers-reduced-motion: reduce) {

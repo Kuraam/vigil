@@ -101,6 +101,64 @@ function useFitHeight(min = 260, max = 470) {
   return { ref, h }
 }
 
+/** Each zone's shapes, reused for the zone itself and for the selection overlay. */
+const ZONE_ORDER: BodyZone[] = ['bones-muscles', 'gut-nutrition', 'lungs', 'heart-circulation', 'brain-behaviour', 'eyes', 'immune-blood']
+function zoneShapes(z: BodyZone): ReactNode {
+  switch (z) {
+    case 'bones-muscles':
+      return BONES.map((d) => <path key={d} d={d} />)
+    case 'gut-nutrition':
+      return (
+        <>
+          <path d={GUT} />
+          <path d={GUT_COILS} fill="none" strokeLinecap="round" />
+        </>
+      )
+    case 'lungs':
+      return (
+        <>
+          <path d={LUNG_R} />
+          <path d={mirror(LUNG_R)} />
+        </>
+      )
+    case 'heart-circulation':
+      return <path d={HEART} />
+    case 'brain-behaviour':
+      return (
+        <>
+          <path d={BRAIN} />
+          <path d="M 100 17 C 98 26, 102 34, 100 43" fill="none" strokeLinecap="round" />
+        </>
+      )
+    case 'eyes':
+      return (
+        <>
+          <path d={EYE_R} />
+          <path d={mirror(EYE_R)} />
+        </>
+      )
+    case 'immune-blood':
+      return (
+        <>
+          {NODES.map(([x, y]) => (
+            <circle key={`${x}-${y}`} cx={x} cy={y} r={4.2} />
+          ))}
+          {/* Spleen, under the lower ribs on the body's left (viewer's right). */}
+          <ellipse cx={127} cy={182} rx={5} ry={9} transform="rotate(-18 127 182)" />
+        </>
+      )
+    case 'skin-temperature':
+      return (
+        <>
+          <ellipse {...HEAD} />
+          {SILHOUETTE.map((d) => (
+            <path key={d} d={d} />
+          ))}
+        </>
+      )
+  }
+}
+
 export function BodyFigure({
   statuses,
   selected,
@@ -118,142 +176,96 @@ export function BodyFigure({
 }) {
   const c = useTokens()
   const { ref, h } = useFitHeight()
+  // The column is exactly as wide as the figure. Nothing inside (the caption included) can widen it,
+  // so hovering or selecting never moves the figure or the list beside it.
+  const w = Math.round((h * W) / H)
   const tone: Record<Status, string> = { nominal: c.nominal, watch: c.watch, action: c.action, nodata: c.nodata }
   const statusWord: Record<Status, string> = { nominal: 'Nominal', watch: 'Watch', action: 'Action', nodata: 'No data' }
 
-  const zone = (z: BodyZone, children: ReactNode) => {
-    const color = tone[statuses[z]]
-    const isSel = z === selected
-    const isHot = z === hovered
-    return (
-      <g
-        data-zone={z}
-        onClick={() => onSelect(z)}
-        onMouseEnter={() => onHover(z)}
-        onMouseLeave={() => onHover(null)}
-        className={`cursor-pointer ${isSel ? 'zone-pulse' : ''}`}
-        fill={color}
-        fillOpacity={isSel ? 0.42 : isHot ? 0.34 : 0.2}
-        stroke={isSel ? c.accent : color}
-        strokeWidth={isSel ? 2.4 : isHot ? 1.8 : 1.2}
-        strokeLinejoin="round"
-        style={{ transition: 'fill-opacity 150ms, stroke-width 150ms' }}
-      >
-        {children}
-      </g>
-    )
-  }
+  // Hover and selection change paint only (fill opacity, stroke colour), never geometry.
+  const zoneProps = (z: BodyZone) => ({
+    'data-zone': z,
+    onClick: () => onSelect(z),
+    onMouseEnter: () => onHover(z),
+    onMouseLeave: () => onHover(null),
+    className: 'cursor-pointer',
+  })
 
   const skinColor = tone[statuses['skin-temperature']]
-  const skinSel = selected === 'skin-temperature'
-  const skinHot = hovered === 'skin-temperature'
-  const shown = hovered ?? null
+  const skinOn = selected === 'skin-temperature' || hovered === 'skin-temperature'
+  const shown = hovered
   const [ax, ay] = shown ? ANCHOR[shown] : [0, 0]
 
   return (
-    <div ref={ref} className="flex flex-col items-center">
-      {/* Caption: the zone under the pointer or keyboard focus. Fixed height, so nothing shifts. */}
-      <p aria-hidden data-testid="zone-hover-label" className="mb-2 flex h-6 items-center gap-1.5 text-sm whitespace-nowrap">
+    <div ref={ref} data-testid="body-figure" className="flex flex-col items-center" style={{ width: w }}>
+      {/* Caption for the zone under the pointer or keyboard focus. Fixed two-line height and the
+          figure's width, so a long name wraps inside its own box instead of moving anything. */}
+      <p aria-hidden data-testid="zone-hover-label" className="mb-2 h-10 w-full overflow-hidden text-center text-sm leading-5">
         {shown ? (
           <>
-            <span className="font-medium text-fg">{names[shown]}</span>
-            <span className="text-fg-muted">{statusWord[statuses[shown]]}</span>
+            <span className="font-medium text-fg">{names[shown]}</span> <span className="text-fg-muted">{statusWord[statuses[shown]]}</span>
           </>
         ) : (
           <span className="text-fg-faint">Point to a body system</span>
         )}
       </p>
-      <svg viewBox={`0 0 ${W} ${H}`} aria-hidden style={{ height: h }} className="w-auto max-w-full overflow-visible">
+      <svg viewBox={`0 0 ${W} ${H}`} aria-hidden width={w} height={h} className="block overflow-visible">
         <defs>
           <filter id="skin-glow" x="-20%" y="-10%" width="140%" height="120%">
-            <feGaussianBlur stdDeviation={skinSel || skinHot ? 3.5 : 2.2} />
+            <feGaussianBlur stdDeviation={2.6} />
           </filter>
         </defs>
 
         {/* Skin: one outline around the whole silhouette, with a soft glow in its status colour. */}
-        <g
-          data-zone="skin-temperature"
-          className="cursor-pointer"
-          onClick={() => onSelect('skin-temperature')}
-          onMouseEnter={() => onHover('skin-temperature')}
-          onMouseLeave={() => onHover(null)}
-        >
-          <g filter="url(#skin-glow)" opacity={skinSel || skinHot ? 0.55 : 0.3} fill={skinColor} stroke={skinColor} strokeWidth={6}>
-            <ellipse {...HEAD} />
-            {SILHOUETTE.map((d) => (
-              <path key={d} d={d} />
-            ))}
+        <g {...zoneProps('skin-temperature')}>
+          <g filter="url(#skin-glow)" opacity={skinOn ? 0.55 : 0.3} fill={skinColor} stroke={skinColor} strokeWidth={6}>
+            {zoneShapes('skin-temperature')}
           </g>
           {/* Outline: stroke every part, then cover the inner seams with the panel colour. */}
-          <g fill={skinSel ? c.accent : skinColor} stroke={skinSel ? c.accent : skinColor} strokeWidth={skinSel ? 4.8 : 3} className={skinSel ? 'zone-pulse' : ''}>
-            <ellipse {...HEAD} />
-            {SILHOUETTE.map((d) => (
-              <path key={d} d={d} />
-            ))}
+          <g fill={skinColor} stroke={skinColor} strokeWidth={3}>
+            {zoneShapes('skin-temperature')}
           </g>
-          <g fill={c.panel}>
-            <ellipse {...HEAD} />
-            {SILHOUETTE.map((d) => (
-              <path key={d} d={d} />
-            ))}
-          </g>
+          <g fill={c.panel}>{zoneShapes('skin-temperature')}</g>
           {/* Group opacity, so overlapping parts do not double the tint. */}
-          <g fill={skinColor} opacity={skinSel ? 0.16 : 0.08}>
-            <ellipse {...HEAD} />
-            {SILHOUETTE.map((d) => (
-              <path key={d} d={d} />
-            ))}
+          <g fill={skinColor} opacity={skinOn ? 0.16 : 0.08}>
+            {zoneShapes('skin-temperature')}
           </g>
         </g>
 
-        {zone(
-          'bones-muscles',
-          BONES.map((d) => <path key={d} d={d} />),
-        )}
-        {zone(
-          'gut-nutrition',
-          <>
-            <path d={GUT} />
-            <path d={GUT_COILS} fill="none" strokeLinecap="round" />
-          </>,
-        )}
-        {zone(
-          'lungs',
-          <>
-            <path d={LUNG_R} />
-            <path d={mirror(LUNG_R)} />
-          </>,
-        )}
-        {zone('heart-circulation', <path d={HEART} />)}
-        {zone(
-          'brain-behaviour',
-          <>
-            <path d={BRAIN} />
-            <path d="M 100 17 C 98 26, 102 34, 100 43" fill="none" strokeLinecap="round" />
-          </>,
-        )}
-        {zone(
-          'eyes',
-          <>
-            <path d={EYE_R} />
-            <path d={mirror(EYE_R)} />
-          </>,
-        )}
-        {zone(
-          'immune-blood',
-          <>
-            {NODES.map(([x, y]) => (
-              <circle key={`${x}-${y}`} cx={x} cy={y} r={4.2} />
-            ))}
-            {/* Spleen, under the lower ribs on the body's left (viewer's right). */}
-            <ellipse cx={127} cy={182} rx={5} ry={9} transform="rotate(-18 127 182)" />
-          </>,
-        )}
+        {ZONE_ORDER.map((z) => {
+          const color = tone[statuses[z]]
+          return (
+            <g
+              key={z}
+              {...zoneProps(z)}
+              fill={color}
+              fillOpacity={z === selected ? 0.42 : z === hovered ? 0.34 : 0.2}
+              stroke={color}
+              strokeWidth={1.2}
+              strokeLinejoin="round"
+              style={{ transition: 'fill-opacity 150ms' }}
+            >
+              {zoneShapes(z)}
+            </g>
+          )
+        })}
+
+        {/* Selection overlay: a separate, non-interactive outline whose opacity pulses (paint only). */}
+        <g
+          data-testid="zone-selection"
+          data-selected={selected}
+          pointerEvents="none"
+          fill="none"
+          stroke={c.accent}
+          strokeWidth={selected === 'skin-temperature' ? 3.2 : 2.4}
+          strokeLinejoin="round"
+          className="zone-pulse"
+        >
+          {zoneShapes(selected)}
+        </g>
 
         {/* Marker for the zone named in the caption. */}
-        {shown && (
-          <circle cx={ax} cy={ay} r={3} fill={c.fg} stroke={c.panel} strokeWidth={1.5} pointerEvents="none" />
-        )}
+        {shown && <circle cx={ax} cy={ay} r={3} fill={c.fg} stroke={c.panel} strokeWidth={1.5} pointerEvents="none" />}
       </svg>
     </div>
   )

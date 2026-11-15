@@ -40,7 +40,7 @@ export function BodyMapPage() {
       />
 
       <div data-tour="body-map" className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,32rem)_minmax(0,1fr)]">
-        <div className="min-w-0 rounded-lg border border-line bg-panel p-4 sm:p-5">
+        <div data-testid="body-figure-panel" className="min-w-0 self-start rounded-lg border border-line bg-panel p-4 sm:p-5">
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-[auto_minmax(0,1fr)]">
             <div className="flex justify-center">
               <BodyFigure statuses={statuses} selected={selected} hovered={hovered} onSelect={select} onHover={setHovered} names={BODY_ZONE_LABEL} />

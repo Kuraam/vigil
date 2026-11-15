@@ -490,9 +490,68 @@ try {
       await page.locator('[data-zone="gut-nutrition"]').click()
       await page.locator('#zone-heading', { hasText: 'Gut and nutrition' }).waitFor({ timeout: 5000 }).catch(() => {})
       check('clicking a figure zone selects it', (await page.locator('#zone-heading').textContent())?.trim() === 'Gut and nutrition')
-      check('selected zone pulses', (await page.locator('g[data-zone="gut-nutrition"]').getAttribute('class'))?.includes('zone-pulse') ?? false)
+      check('selected zone pulses on a separate overlay', (await page.getByTestId('zone-selection').getAttribute('data-selected')) === 'gut-nutrition' && ((await page.getByTestId('zone-selection').getAttribute('class')) ?? '').includes('zone-pulse'))
     }
     check(`body map fit console clean ${viewport.width}`, errors.length === 0, errors.join(' | '))
+    await page.close()
+  }
+
+  // Body Map layout stability: clicking or hovering any zone (figure or list) must never move or resize
+  // the figure, the list or the panels. Boxes are compared in page coordinates (scroll-independent).
+  for (const viewport of [{ width: 1366, height: 645 }, { width: 1440, height: 900 }]) {
+    const { page, errors } = await openPage(viewport)
+    await page.goto(base + '/body-map', { waitUntil: 'networkidle' })
+    const ZONES = ['brain-behaviour', 'eyes', 'heart-circulation', 'lungs', 'gut-nutrition', 'bones-muscles', 'immune-blood', 'skin-temperature']
+    const boxes = () =>
+      page.evaluate(() => {
+        const r = (el) => {
+          if (!el) return 'missing'
+          const b = el.getBoundingClientRect()
+          return [b.x + window.scrollX, b.y + window.scrollY, b.width, b.height].map((n) => Math.round(n)).join(',')
+        }
+        const side = document.querySelector('[data-testid="zone-panel"]')
+        const sb = side?.getBoundingClientRect()
+        return {
+          figure: r(document.querySelector('[data-testid="body-figure"] svg')),
+          caption: r(document.querySelector('[data-testid="zone-hover-label"]')),
+          list: r(document.querySelector('ul[aria-labelledby="zones-heading"]')),
+          figurePanel: r(document.querySelector('[data-testid="body-figure-panel"]')),
+          // The side panel's height follows its content (each body system says different things);
+          // its position and width must not move.
+          sidePanel: sb ? [sb.x + window.scrollX, sb.y + window.scrollY, sb.width].map((n) => Math.round(n)).join(',') : 'missing',
+        }
+      })
+    const initial = await boxes()
+    const moved = []
+    const compare = async (what) => {
+      // Sample twice, 120 ms apart, to catch an oscillation as well as a one-off shift.
+      for (let i = 0; i < 2; i++) {
+        await page.waitForTimeout(120)
+        const now = await boxes()
+        for (const k of Object.keys(initial)) if (now[k] !== initial[k]) moved.push(`${what}: ${k} ${initial[k]} -> ${now[k]}`)
+      }
+    }
+    for (const z of ZONES) {
+      await page.locator(`[data-testid="body-figure"] g[data-zone="${z}"]`).first().dispatchEvent('click')
+      await page.locator(`[data-testid="body-figure"] g[data-zone="${z}"]`).first().hover({ force: true, timeout: 3000 }).catch((e) => moved.push(`hover figure ${z}: ${e.message.split('\n')[0]}`))
+      await compare(`click+hover figure ${z}`)
+      const btn = page.locator('ul[aria-labelledby="zones-heading"] button').nth(ZONES.indexOf(z))
+      await btn.scrollIntoViewIfNeeded({ timeout: 3000 }).catch((e) => moved.push(`scroll list ${z}: ${e.message.split('\n')[0]}`))
+      await btn.hover({ timeout: 3000 }).catch((e) => moved.push(`hover list ${z}: ${e.message.split('\n')[0]}`))
+      await compare(`hover list ${z}`)
+      await btn.click({ timeout: 3000 }).catch((e) => moved.push(`click list ${z}: ${e.message.split('\n')[0]}`))
+      await compare(`click list ${z}`)
+    }
+    // Sweep the pointer down the middle of the figure.
+    const svg = page.locator('[data-testid="body-figure"] svg')
+    await svg.scrollIntoViewIfNeeded({ timeout: 3000 }).catch(() => {})
+    const box = await svg.boundingBox()
+    for (let i = 0; i <= 12; i++) {
+      await page.mouse.move(box.x + box.width / 2, box.y + (box.height * i) / 12)
+      await compare(`sweep ${i}`)
+    }
+    check(`Body Map layout is stable on click and hover at ${viewport.width}x${viewport.height}`, moved.length === 0, moved.slice(0, 4).join(' | '))
+    check(`body map stability console clean ${viewport.width}`, errors.length === 0, errors.join(' | '))
     await page.close()
   }
 
