@@ -2,6 +2,7 @@
 
 **Live app:** https://vigil-pandas.vercel.app
 **Repository:** https://github.com/Kuraam/vigil
+**Walkthrough video (2:47, captioned):** [VIGIL walkthrough.mp4](docs/video/VIGIL%20walkthrough.mp4) with [captions (SRT)](docs/video/VIGIL%20walkthrough.srt)
 **Demo deck (7 slides):** [PDF](https://vigil-pandas.vercel.app/VIGIL-demo-deck.pdf) (official submission) | [PowerPoint](https://vigil-pandas.vercel.app/VIGIL-demo-deck.pptx) (editable) | [Browser presentation](https://vigil-pandas.vercel.app/deck/) (arrow keys, F for fullscreen)
 
 > **Simulated data. Concept demonstration, not a medical device.**
@@ -135,6 +136,7 @@ npm run dev          # http://localhost:5173
 | `npm test` | Unit tests (Vitest) |
 | `npm run smoke` | Browser check of every route, the tour, reset and the end-to-end fever path. Set `SMOKE_URL` to test a running build |
 | `npm run screenshots` | Regenerate `docs/screenshots/` (1920x1080) |
+| `npm run video` | Record the captioned walkthrough from the live app and encode `docs/video/VIGIL walkthrough.mp4` + `.srt` (needs ffmpeg), then check duration and extract one still per scene |
 | `npm run deck` | Render `docs/deck/index.html` to the 7-page PDF in `docs/` and `public/` |
 | `npm run deck:pptx` | Rebuild the deck as an editable PowerPoint (`docs/VIGIL Demo Deck.pptx`, `public/VIGIL-demo-deck.pptx`) and check its text against the PDF |
 | `npm run deck:web` | Copy the deck to `public/deck/` as a browser presentation (served at `/deck/`) |

@@ -17,7 +17,8 @@
     "icons": "node scripts/build-icons.mjs",
     "offline": "node scripts/offline.mjs",
     "deck:pptx": "node scripts/build-deck-pptx.mjs",
-    "deck:web": "node scripts/build-deck-web.mjs"
+    "deck:web": "node scripts/build-deck-web.mjs",
+    "video": "node scripts/video/record.mjs && node scripts/video/check.mjs"
   },
   "dependencies": {
     "@fontsource/ibm-plex-mono": "^5.3.0",

@@ -1,0 +1,105 @@
+1
+00:00:00,000 --> 00:00:07,809
+VIGIL: Health monitoring a crew can act on when Earth is
+minutes away. Pandanauts, NASA Space Apps Challenge 2026
+
+2
+00:00:07,900 --> 00:00:12,702
+On the way to Mars, a message to Earth
+takes up to 22 minutes, one way.
+
+3
+00:00:12,707 --> 00:00:19,714
+Five hazards: radiation, isolation, distance, gravity,
+closed environments. Most astronauts are not doctors.
+
+4
+00:00:24,653 --> 00:00:28,913
+Crew alerts show who needs help at a glance.
+
+5
+00:00:28,921 --> 00:00:33,583
+Earth signal and the Crew-autonomous
+badge: how far help is.
+
+6
+00:00:33,589 --> 00:00:38,886
+Attention now: Arjun has a 38.3 °C fever.
+
+7
+00:00:38,888 --> 00:00:43,200
+Mei has been losing sleep since day 22.
+
+8
+00:00:47,027 --> 00:00:56,109
+Each body system takes the worst status of
+its readings, linked to NASA’s named risks.
+
+9
+00:00:56,116 --> 00:01:01,325
+Eyes: SANS, a NASA-named spaceflight risk.
+
+10
+00:01:05,284 --> 00:01:10,438
+30-day trends with the safe range shaded.
+
+11
+00:01:10,441 --> 00:01:14,448
+Every threshold shows its source.
+
+12
+00:01:16,778 --> 00:01:20,593
+Problems sorted, most urgent first.
+
+13
+00:01:22,960 --> 00:01:34,506
+Four steps: confirm, check
+danger signs, act, escalate.
+
+14
+00:01:34,509 --> 00:01:42,158
+Re-measured: 37.4 °C. Status turns green.
+
+15
+00:01:42,162 --> 00:01:47,974
+On the way to Mars, Earth’s reply is up to
+44.6 minutes away, so the crew acts first.
+
+16
+00:01:52,504 --> 00:01:59,012
+Everything done, timestamped, in a
+few kilobytes for Earth’s doctors.
+
+17
+00:02:02,709 --> 00:02:08,662
+Near Earth, the advice changes:
+Ground-guided, reply in under 2 seconds.
+
+18
+00:02:08,664 --> 00:02:13,177
+Hazards are re-ranked for the station,
+and radiation days remaining change.
+
+19
+00:02:15,509 --> 00:02:22,322
+Daily prevention: exercise,
+sleep, check-ins, streaks.
+
+20
+00:02:23,055 --> 00:02:29,162
+Wi-Fi off: Offline: running on device.
+
+21
+00:02:29,164 --> 00:02:33,373
+No connection to Earth needed.
+VIGIL runs on the device.
+
+22
+00:02:35,703 --> 00:02:40,312
+Built on NASA data and
+published health guidelines.
+
+23
+00:02:40,411 --> 00:02:47,419
+vigil-pandas.vercel.app · github.com/Kuraam/vigil. Concept
+demonstration with simulated data. Not a medical device.
