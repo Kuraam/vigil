@@ -77,8 +77,10 @@ try {
     const { page, errors } = await openPage()
     const res = await page.goto(base + path, { waitUntil: 'networkidle' })
     check(`${path} HTTP status`, (res?.status() ?? 0) < 400, String(res?.status()))
-    const h1 = (await page.locator('h1').first().textContent())?.trim()
-    const footer = await page.locator('footer').textContent()
+    // Wait for this route's heading; on failure, report (with console errors) instead of crashing the run.
+    await page.locator('h1', { hasText: heading }).first().waitFor({ timeout: 15000 }).catch(() => {})
+    const h1 = (await page.locator('h1').first().textContent({ timeout: 2000 }).catch(() => null))?.trim()
+    const footer = await page.locator('footer').textContent({ timeout: 2000 }).catch(() => null)
     check(`${path} heading`, h1 === heading, `got "${h1}"`)
     check(`${path} disclaimer`, footer?.includes('Simulated data. Concept demonstration, not a medical device.') ?? false)
     check(`${path} console clean`, errors.length === 0, errors.join(' | '))
