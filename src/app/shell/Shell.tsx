@@ -4,6 +4,7 @@ import { useLocation, useOutlet } from 'react-router'
 import { TourPanel } from '../../features/tour/TourPanel'
 import { prefetchPages } from '../pages'
 import { PageSkeleton } from './PageSkeleton'
+import { PwaToasts } from './PwaToasts'
 import { SideNav } from './SideNav'
 import { TopBar } from './TopBar'
 
@@ -44,6 +45,7 @@ export function Shell() {
         </main>
       </div>
       <TourPanel />
+      <PwaToasts />
       {/* In the page flow (not fixed), so it can never cover content on short screens. */}
       <footer className="border-t border-line bg-panel px-4 py-2.5 text-sm text-fg-muted print:hidden sm:px-6">{DISCLAIMER}</footer>
     </div>

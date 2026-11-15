@@ -16,7 +16,7 @@ export const TOUR_STEPS: TourStep[] = [
   {
     title: 'Overview and signal delay',
     caption:
-      'Each crew member’s latest readings are rated against cited thresholds. Top right: Earth is up to 22.3 minutes away one way, so VIGIL works crew-autonomous first.',
+      'Each crew member’s latest readings are rated against cited thresholds. Top right: Earth is up to 22.3 minutes away one way, so VIGIL works crew-autonomous first. VIGIL keeps working with no connection to Earth. Try it: load the app once, then switch off Wi-Fi.',
     path: '/overview',
     target: 'comm',
     crewId: 'crew-03',

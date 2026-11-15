@@ -14,9 +14,13 @@ A Routine page supports prevention with a daily checklist (exercise, sleep, nutr
 
 ## How it works
 
-VIGIL is a single-page web app that runs entirely in the browser, with no server or account. Thresholds are stored as data, each value with its unit and source, and a set of pure, unit-tested functions turns readings into ratings, alerts, protocol state and the brief. Where published figures leave a gap, the rule is labelled as a team rule and is not presented as clinical fact. Protocols never name medicines or doses.
+VIGIL is a single-page web app that runs entirely in the browser, with no server or account. Thresholds are stored as data, each value with its unit and source, and a set of pure, unit-tested functions turns readings into ratings, alerts, protocol state and the brief. Where published figures leave a gap, the rule is labelled as a team rule and is not presented as clinical fact. Protocols never name medicines or doses. After the first visit VIGIL is stored on the device as an installable app, so every page, protocol and the Downlink brief work with no network connection.
 
 The demo uses a seeded simulation of 30 mission days with two storylines: the flight engineer builds up sleep debt from day 22, and the mission specialist develops a 38.3 °C fever on day 29. A guided tour walks a new visitor through the fever case from alert to downlink in about a minute.
+
+## Factors we considered
+
+A deep-space crew cannot depend on servers on Earth, so VIGIL works fully offline and all processing happens on the device.
 
 ## Benefits
 
@@ -27,11 +31,11 @@ The demo uses a seeded simulation of 30 mission days with two storylines: the fl
 
 ## What we hope to achieve
 
-We want to show that an Earth-independent health tool can be clear, honest about its limits, and grounded in NASA data. Next steps would be input from real wearables and medical devices, an offline tablet build, and review of every rule and protocol by flight surgeons.
+We want to show that an Earth-independent health tool can be clear, honest about its limits, and grounded in NASA data. Next steps would be input from real wearables and medical devices, native tablet packaging, and review of every rule and protocol by flight surgeons.
 
 ## Tools, languages and software
 
-TypeScript, React, Vite, Tailwind CSS, Motion, Zustand, React Router, Recharts, lucide-react icons, IBM Plex fonts, Vitest, oxlint and Playwright (for browser tests, screenshots and the deck PDF). Hosted on Vercel, code on GitHub. Code was written with the assistance of Claude (Anthropic), directed and reviewed by the team.
+TypeScript, React, Vite, vite-plugin-pwa with Workbox (offline service worker), Tailwind CSS, Motion, Zustand, React Router, Recharts, lucide-react icons, IBM Plex fonts, Vitest, oxlint and Playwright (for browser tests, screenshots and the deck PDF). Hosted on Vercel, code on GitHub. Code was written with the assistance of Claude (Anthropic), directed and reviewed by the team.
 
 ## Team
 

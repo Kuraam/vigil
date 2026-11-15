@@ -31,9 +31,24 @@ On the way to Mars, a signal takes up to about 22 minutes to reach Earth, and as
 - **Routine.** A daily countermeasure checklist with points, personal and crew streaks, a 7-day adherence bar and milestones.
 - **Downlink.** A compact plain-text brief for the next communication window, with copy, print or save as PDF, its size and the time it takes to reach Earth.
 - **Sources.** Every source with where it is used, an About section and the AI-use statement.
+- **Works offline.** After one visit everything runs on the device, installable as an app. A badge shows Online or Offline: running on device.
 - **First visit.** A "Start here" panel and a 60-second guided tour. "Reset demo data" on the Sources page restores the seeded state.
 
-It runs fully offline in the browser. There is no backend, account or network call.
+There is no backend, account or network call: all processing happens on the device.
+
+## Works offline
+
+A deep-space crew cannot depend on servers on Earth. After one visit, VIGIL is stored on the device as an installable app (a Progressive Web App), so every page, protocol and the Downlink brief work with no network connection. No health data leaves the device.
+
+To check it yourself:
+
+1. Open https://vigil-pandas.vercel.app once, in Chrome or Edge.
+2. Wait for the toast **Ready to work offline.** (the badge at the top left reads **Online**).
+3. Switch off Wi-Fi (or set DevTools > Network to Offline).
+4. Reload. The badge now reads **Offline: running on device**.
+5. Use every page: Overview, Body Map, Vitals, Triage (start the fever protocol for Arjun Sethi), Routine, Downlink (build the brief) and Sources.
+
+To install it, use the browser's install icon in the address bar, or **Install app** on the Sources page when the browser offers it. When a new version is deployed, VIGIL shows **Update available** with a Reload button; it never reloads by itself in the middle of a protocol. The demo deck PDF is not stored for offline use.
 
 ## How it works
 
@@ -87,7 +102,7 @@ VIGIL is released under the [MIT License](LICENSE). Copyright (c) 2026 Pandanaut
 ## Future work
 
 - Real input from wearables and medical devices.
-- An installable offline tablet build for use on board.
+- Native tablet packaging for use on board.
 - Validation of thresholds, rules and protocols with flight surgeons.
 - More environments, such as Moon and Mars bases.
 
@@ -119,6 +134,8 @@ npm run dev          # http://localhost:5173
 | `npm run smoke` | Browser check of every route, the tour, reset and the end-to-end fever path. Set `SMOKE_URL` to test a running build |
 | `npm run screenshots` | Regenerate `docs/screenshots/` (1920x1080) |
 | `npm run deck` | Render `docs/deck/index.html` to the 7-page PDF in `docs/` and `public/` |
+| `npm run offline` | Offline test against a production build (`npm run build` first) or `OFFLINE_URL`: precache, every route offline, the fever path offline |
+| `npm run icons` | Render the app icons in `public/icons/` from the VIGIL mark |
 | `npm run sync:team` | Copy the team from `src/data/team.json` into the README, submission files and deck |
 
 The smoke, screenshot and deck scripts use an installed Chrome or Edge; set `CHROME_PATH` if needed. On Windows, run tests with `npm test` rather than `npx vitest`: the wrapper fixes a Vitest bug with lower-case drive letters.

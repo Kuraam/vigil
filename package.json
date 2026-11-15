@@ -13,7 +13,9 @@
     "smoke": "node scripts/smoke.mjs",
     "sync:team": "node scripts/sync-team.mjs",
     "screenshots": "node scripts/screenshots.mjs",
-    "deck": "node scripts/build-deck.mjs"
+    "deck": "node scripts/build-deck.mjs",
+    "icons": "node scripts/build-icons.mjs",
+    "offline": "node scripts/offline.mjs"
   },
   "dependencies": {
     "@fontsource/ibm-plex-mono": "^5.3.0",
@@ -37,7 +39,9 @@
     "tailwindcss": "^4.3.5",
     "typescript": "~7.0.2",
     "vite": "^8.3.6",
-    "vitest": "^5.1.0"
+    "vite-plugin-pwa": "^2.0.0",
+    "vitest": "^5.1.0",
+    "workbox-window": "^7.4.1"
   },
   "description": "VIGIL: Earth-independent crew health console for NASA Space Apps 2026 (Pandanauts). Developed with AI assistance (Claude, Anthropic), directed and reviewed by the team. Simulated data; not a medical device.",
   "license": "MIT"

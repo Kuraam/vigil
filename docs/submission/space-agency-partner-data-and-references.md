@@ -46,6 +46,7 @@ Tiers that published figures do not cover are labelled "VIGIL triage rule (team-
 | Vitest | MIT |
 | oxlint | MIT |
 | playwright-core | Apache-2.0 |
+| vite-plugin-pwa, Workbox (offline service worker) | MIT |
 
 ## Fonts
 

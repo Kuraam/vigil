@@ -9,6 +9,7 @@ import { useMissionHealth } from '../../lib/useCrewHealth'
 import { useVigilStore } from '../../lib/store'
 import type { EnvironmentId } from '../../types'
 import { CommDelay } from './CommDelay'
+import { ConnectionBadge } from './ConnectionBadge'
 import { CrewAlertIndicator } from './CrewAlertIndicator'
 import { MissionClock } from './MissionClock'
 import { SelectField } from './SelectField'
@@ -43,8 +44,14 @@ export function TopBar() {
   return (
     <header className="border-b border-line bg-panel print:hidden">
       <div className="flex flex-wrap items-end gap-x-3 gap-y-4 px-4 py-3 sm:px-6 2xl:gap-x-8">
-        <Wordmark />
-        <MissionClock missionDay={latestMissionDay(readings)} />
+        {/* Connection badge sits above the wordmark and clock, using height the top bar already has. */}
+        <div className="flex flex-col gap-1.5">
+          <ConnectionBadge />
+          <div className="flex items-end gap-x-3 2xl:gap-x-8">
+            <Wordmark />
+            <MissionClock missionDay={latestMissionDay(readings)} />
+          </div>
+        </div>
         <div className="flex flex-wrap items-end gap-x-3 gap-y-3 xl:ml-auto 2xl:gap-x-4">
           <SelectField
             label="Crew member"

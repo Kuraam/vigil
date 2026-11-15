@@ -606,6 +606,47 @@ try {
     await page.close()
   }
 
+  // OFFLINE / PWA: visible connection status, Works offline section, tour sentence, manifest on built targets.
+  {
+    const { page, errors } = await openPage({ width: 1366, height: 645 })
+    await page.goto(base + '/sources', { waitUntil: 'networkidle' })
+    const badge = page.getByTestId('connection-badge')
+    const label = (await badge.textContent())?.trim()
+    check('connection badge shows icon and words', ['Online', 'Preparing offline mode…'].includes(label ?? '') && (await badge.locator('svg').count()) === 1, label)
+    const box = await page.getByRole('banner').boundingBox()
+    check('top bar stays one row at 1366 px with the badge', !!box && box.height <= 110, `${box?.height}px`)
+    const about = (await page.getByTestId('works-offline').textContent()) ?? ''
+    check('Sources has a Works offline section', about.includes('Works offline') && about.includes('No health data leaves the device.'))
+    check('Install app button hidden until the browser offers installation', (await page.getByTestId('install-app').count()) === 0)
+    await page.getByRole('button', { name: 'Take the tour' }).click()
+    await page.locator('#tour-title', { hasText: 'Overview and signal delay' }).waitFor({ timeout: 5000 }).catch(() => {})
+    check('tour stop 1 invites the offline test', ((await page.locator('#tour-caption').textContent()) ?? '').includes('VIGIL keeps working with no connection to Earth. Try it: load the app once, then switch off Wi-Fi.'))
+    await page.keyboard.press('Escape')
+    // Losing and regaining the connection updates the badge live (online/offline events).
+    await page.context().setOffline(true)
+    await page.locator('[data-testid="connection-badge"][data-kind="offline"]').waitFor({ timeout: 5000 }).catch(() => {})
+    check('badge switches to "Offline: running on device" when the connection drops', (await badge.textContent())?.trim() === 'Offline: running on device')
+    await page.context().setOffline(false)
+    await page.locator('[data-testid="connection-badge"]:not([data-kind="offline"])').waitFor({ timeout: 5000 }).catch(() => {})
+    check('badge returns when the connection is back', (await badge.getAttribute('data-kind')) !== 'offline')
+    if (target) {
+      const res = await page.request.get(base + '/manifest.webmanifest')
+      const m = await res.json().catch(() => ({}))
+      check(
+        'manifest: name, standalone, start_url, icons',
+        m.name === 'VIGIL: Crew Health Console' && m.short_name === 'VIGIL' && m.display === 'standalone' && m.start_url === '/overview' && m.icons?.some((i) => i.purpose === 'maskable'),
+        JSON.stringify({ name: m.name, display: m.display, start_url: m.start_url }),
+      )
+      const sw = await page.request.get(base + '/sw.js')
+      check('sw.js is served', sw.ok())
+      // vite preview sets no cache headers; the deployed site must (vercel.json).
+      if (target.startsWith('https')) check('sw.js served with Cache-Control: no-cache', (sw.headers()['cache-control'] ?? '').includes('no-cache'), sw.headers()['cache-control'])
+    }
+    check('pwa console clean', errors.length === 0, errors.join(' | '))
+    await page.evaluate(() => localStorage.clear())
+    await page.close()
+  }
+
   // 4. Narrow screen render for review.
   {
     const { page, errors } = await openPage({ width: 390, height: 844 })

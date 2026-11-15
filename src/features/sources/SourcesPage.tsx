@@ -2,6 +2,7 @@ import { ExternalLink } from 'lucide-react'
 import { PageHeader } from '../../components/PageHeader'
 import TEAM from '../../data/team.json'
 import { ResetDemo } from './ResetDemo'
+import { WorksOffline } from './WorksOffline'
 import { ALL_SOURCES, ENDORSEMENT_NOTE, SOURCE_GROUP_LABEL, SOURCES, type SourceGroup } from '../../data/sources'
 
 const ORDER: SourceGroup[] = ['challenge', 'nasa', 'agency', 'clinical', 'team']
@@ -42,6 +43,7 @@ export function SourcesPage() {
             </a>
           </li>
         </ul>
+        <WorksOffline />
       </section>
 
       <ResetDemo />
